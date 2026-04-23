@@ -6,9 +6,9 @@
 
 | Content | Count |
 |---------|-------|
-| Agents | 7 |
+| Agents | 10 |
 | Projects | 1 |
-| Skills | 50 |
+| Skills | 52 |
 | Tasks | 2 |
 
 ### Agents
@@ -18,7 +18,10 @@
 | CEO | CEO | — |
 | Scout | general | ceo |
 | Qualifier | general | ceo |
-| WebDesigner | general | ceo |
+| DesignPlanner | general | ceo |
+| WebBuilder | general | ceo |
+| WebQA | general | ceo |
+| WebPublisher | general | ceo |
 | Outreach | general | ceo |
 | Closer | general | ceo |
 | DataAnalyst | researcher | ceo |
@@ -33,10 +36,25 @@
 
 ### Pipeline
 
+```text
+Scout → Qualifier → DesignPlanner → WebBuilder → WebQA → WebPublisher → Outreach → Closer
+                              ↘
+                           DataAnalyst
 ```
-Scout → Qualifier → WebDesigner → Outreach → Closer → [HOTMART PAYMENT] → Onboarding
-                                                        ↗ DataAnalyst (SaaS metrics + intelligence)
-```
+
+### Production Logic
+
+Humanio works in two web delivery modes:
+
+- `template` for cold outbound prospects with no explicit buying signal
+- `premier` for inbound, demo-requested, urgent, or CEO-prioritized opportunities
+
+All prospects still receive:
+- landing page
+- proposal page
+- diagnostic / report page
+
+What changes is the level of customization of the landing page.
 
 ### Projects
 
@@ -44,7 +62,7 @@ Scout → Qualifier → WebDesigner → Outreach → Closer → [HOTMART PAYMENT
 
 ### Skills
 
-50 skills including: alert-manager, backlink-analyzer, competitor-analysis, content-gap-analysis, content-quality-auditor, content-refresher, domain-authority-auditor, entity-optimizer, geo-content-optimizer, internal-linking-optimizer, keyword-research, memory-management, meta-tags-optimizer, on-page-seo-auditor, performance-reporter, rank-tracker, schema-markup-generator, seo-content-writer, serp-analysis, technical-seo-checker, frontend-design, outreach-proposals, qualifier-prospect-auditor, qualifier-seo, scout-prospector, webdesigner-proposals, frontend-design-review, frontend-ui-dark-ts, closer-sales, sales-copywriting, dataanalyst-pipeline, web-qa, qualifier-diagnostic-html, package-pricing, package-outreach, saas-metrics, retention-playbook, ui-ux-pro-max, paperclip-create-agent, paperclip-create-plugin, paperclip, para-memory-files, **objection-handling** (NEW), **social-selling** (NEW), **cold-outreach** (NEW), **lead-qualification** (NEW), **web-scraping** (NEW)
+52 skills including: alert-manager, backlink-analyzer, competitor-analysis, content-gap-analysis, content-quality-auditor, content-refresher, domain-authority-auditor, entity-optimizer, geo-content-optimizer, internal-linking-optimizer, keyword-research, memory-management, meta-tags-optimizer, on-page-seo-auditor, performance-reporter, rank-tracker, schema-markup-generator, seo-content-writer, serp-analysis, technical-seo-checker, frontend-design, outreach-proposals, qualifier-prospect-auditor, qualifier-seo, scout-prospector, webdesigner-proposals, frontend-design-review, frontend-ui-dark-ts, closer-sales, sales-copywriting, dataanalyst-pipeline, web-qa, qualifier-diagnostic-html, package-pricing, package-outreach, saas-metrics, retention-playbook, ui-ux-pro-max, paperclip-create-agent, paperclip-create-plugin, paperclip, para-memory-files, objection-handling, social-selling, cold-outreach, lead-qualification, web-scraping, web-template-system, web-premier-system
 
 ## Getting Started
 
@@ -57,6 +75,3 @@ See [Paperclip](https://paperclip.ing) for more information.
 ---
 
 > Humanio — Inteligencia Artificial para negocios
-
-Exported from [Paperclip](https://paperclip.ing) on 2026-04-13
-Updated 2026-04-15: Added 5 GTM skills (objection-handling, social-selling, cold-outreach, lead-qualification, web-scraping) + completed CEO TOOLS.md + assigned retention-playbook to DataAnalyst
