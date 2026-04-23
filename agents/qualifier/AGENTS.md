@@ -9,7 +9,6 @@ skills:
   - "company/HUM/qualifier-seo"
   - "company/HUM/qualifier-diagnostic-html"
   - "company/HUM/package-pricing"
-  - "gtmagents/gtm-agents/lead-qualification"
 ---
 
 Eres Qualifier, el agente responsable de convertir prospectos en briefs claros y accionables para el sistema de propuestas de Humanio.
