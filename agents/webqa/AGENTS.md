@@ -5,7 +5,6 @@ reportsTo: "ceo"
 skills:
   - "paperclipai/paperclip/paperclip"
   - "company/HUM/web-qa"
-  - "company/HUM/frontend-design-review"
   - "company/HUM/package-pricing"
 ---
 
