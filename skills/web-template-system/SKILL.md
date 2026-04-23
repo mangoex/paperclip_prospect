@@ -2,37 +2,131 @@
 
 ## Propósito
 
-Definir el sistema base de landing pages template para prospectos fríos.
+Definir el sistema base de landing pages template para prospectos fríos de Humanio.
 
 ## Objetivo
 
-Reducir consumo de tokens sin perder calidad visual.
+Permitir producir activos web atractivos, consistentes y rápidos con bajo consumo de tokens.
 
-## Estructura base
+## Cuándo usar
+
+Usar este sistema cuando `delivery_mode = template`.
+
+Esto aplica típicamente a:
+- leads outbound provenientes de Scout
+- prospectos sin señal explícita de interés
+- casos sin prioridad alta
+- oportunidades no validadas todavía
+
+## Filosofía
+
+La landing template no es un sitio pobre.
+Debe sentirse moderna, limpia, confiable y visualmente fuerte.
+
+La estandarización debe estar en la estructura, no en una apariencia descuidada.
+
+## Regla principal
+
+No diseñes desde cero para cada prospecto.
+Usa una base reusable y personaliza solo lo necesario para mantener credibilidad y relevancia.
+
+## Estructura base obligatoria
+
+La landing principal debe incluir siempre:
 
 1. Hero visual fuerte
-2. CTA principal
-3. Propuesta de valor
-4. Diagnóstico resumido
-5. Servicios
-6. Paquetes
+2. CTA principal visible
+3. Propuesta de valor breve
+4. Bloque de oportunidad o diagnóstico resumido
+5. Sección de solución / servicios
+6. Acceso a propuesta
 7. CTA final
 
-## Personalización mínima
+Además, siempre deben existir:
+- `/index.html`
+- `/propuesta/index.html`
+- `/reporte/index.html`
 
+## Componentes visuales mínimos
+
+La landing template debe incluir, como estándar:
+
+- hero con alto impacto visual
+- imagen o video de fondo cuando aporte
+- efecto parallax ligero
+- transiciones suaves
+- interacción ligera de mouse o hover
+- jerarquía tipográfica clara
+- CTA visible desde arriba del fold
+
+## Personalización mínima obligatoria
+
+Debes adaptar siempre:
 - nombre del negocio
-- ciudad
-- colores
-- propuesta
-- CTA
-- diagnóstico
+- giro
+- ciudad o zona
+- colores predominantes
+- copy principal
+- CTA principal
+- paquete recomendado
+- observaciones clave del diagnóstico
 
-## Reglas
+## Qué NO se debe personalizar en exceso
 
-- No crear layouts nuevos
-- No sobrecargar diseño
-- Priorizar rapidez
+No cambies por prospecto:
+- arquitectura base del sitio
+- sistema completo de navegación
+- estructura general del hero
+- lógica completa del layout
+- microinteracciones complejas
+- sistema visual entero
 
-## Variantes
+## Variantes permitidas
 
-Máximo 3 templates base.
+Se permiten hasta 3 variantes base de template.
+
+### 1. `institutional`
+Para negocios que necesitan transmitir confianza, claridad y seriedad.
+
+### 2. `bold`
+Para negocios que pueden soportar una presencia más llamativa o contemporánea.
+
+### 3. `warm-local`
+Para negocios de cercanía, servicios locales o tono humano más directo.
+
+No inventes variantes nuevas fuera de estas sin una razón fuerte.
+
+## Nivel de interacción permitido
+
+Usa `interaction_level` con solo estos valores:
+- `low`
+- `medium`
+
+Nunca `high` en modo template.
+
+## Límites de complejidad
+
+En modo template:
+- no diseñes una pieza artesanal
+- no cambies el layout por lucimiento
+- no gastes tokens en sofisticación que no cambie el resultado comercial
+- no conviertas una landing eficiente en un sitio premium disfrazado
+
+## Criterios de calidad
+
+Una buena landing template:
+- se ve moderna
+- se siente cuidada
+- no parece clon barata
+- puede producirse rápido
+- mantiene credibilidad comercial
+- no compite con el modo premier
+
+## Identidad de marca
+
+Humanio es una consultora de Inteligencia Artificial para negocios.
+
+Nunca presentes la propuesta como si Humanio fuera una agencia genérica de páginas web.
+
+Firma correcta:
+"Humanio — Inteligencia Artificial para negocios"
