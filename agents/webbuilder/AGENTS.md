@@ -5,8 +5,6 @@ reportsTo: "ceo"
 skills:
   - "paperclipai/paperclip/paperclip"
   - "paperclipai/paperclip/para-memory-files"
-  - "company/HUM/web-template-system"
-  - "company/HUM/web-premier-system"
   - "company/HUM/frontend-design"
   - "company/HUM/qualifier-diagnostic-html"
   - "company/HUM/package-pricing"
