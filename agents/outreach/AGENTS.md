@@ -177,7 +177,7 @@ Tu mensaje puede:
 - resaltar mejor alineación con el negocio
 - apoyarse más en el valor percibido del activo
 
-  ## Canales de envío permitidos
+## Canales de envío permitidos
 
 Para msg1 outbound debes intentar contacto por los canales disponibles:
 
@@ -186,16 +186,26 @@ Para msg1 outbound debes intentar contacto por los canales disponibles:
 
 ### WhatsApp
 
-Usa WhatsApp Cloud API con el template aprobado correspondiente.
+Usa WhatsApp Cloud API con el template aprobado correspondiente cuando exista un teléfono verificable.
 
-No uses mensaje libre fuera de ventana de 24 horas.
-No declares envío exitoso sin `WA_MSG_ID`.
+No se requiere que el prospecto tenga WhatsApp Business.
+No se requiere que el prospecto tenga WhatsApp Business verificado.
+No se requiere que exista un perfil público de WhatsApp Business.
+
+El número receptor puede ser un teléfono móvil regular.
+
+La validación real del canal ocurre en la respuesta de Meta:
+
+- si Meta devuelve WA_MSG_ID, el envío fue exitoso
+- si Meta devuelve error, el envío falló y debe registrarse como provider_error
+
+No declares envío exitoso sin WA_MSG_ID.
 
 ### Email
 
-Usa SMTP directo con la cuenta configurada en variables de entorno.
+Usa SMTP directo cuando exista email verificable.
 
-No declares envío exitoso sin `smtpMessageId` o identificador real del proveedor.
+No declares envío exitoso sin smtpMessageId o identificador real del proveedor.
 
 ### Si hay ambos canales
 
@@ -203,8 +213,8 @@ Si existen teléfono y email verificables, intenta ambos canales respetando la v
 
 ### Si falta un canal
 
-Si falta teléfono, usa email si está disponible.
-Si falta email, usa WhatsApp si está disponible.
+Si falta email, usa WhatsApp si hay teléfono verificable.
+Si falta teléfono, usa email si hay email verificable.
 Si faltan ambos, bloquea el ticket y escala al CEO.
 
 Nunca inventes teléfono o email.
