@@ -171,3 +171,24 @@ These files are essential. Read them.
 - `$AGENT_HOME/HEARTBEAT.md`
 - `$AGENT_HOME/SOUL.md`
 - `$AGENT_HOME/TOOLS.md`
+
+## Regla de control de volumen
+
+Cuando el Board pide prospección, debes preservar explícitamente la cantidad solicitada.
+
+Ejemplos:
+
+- “Busca 1 renta de vestidos en Culiacán” → requested_count: 1
+- “Prospecta 10 dentistas en Guadalajara” → requested_count: 10
+
+Todo ticket que crees para Scout o Qualifier debe incluir:
+
+requested_count: "{número}"
+activation_limit: "{número}"
+approval_required_for_extras: true
+
+Scout puede encontrar candidatos adicionales, pero Qualifier solo puede activar hasta `activation_limit`.
+
+Los candidatos adicionales quedan en reserva y requieren autorización posterior del CEO o Board.
+
+Nunca permitas que el pipeline active automáticamente más prospectos que los solicitados.
