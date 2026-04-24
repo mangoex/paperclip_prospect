@@ -177,6 +177,38 @@ Tu mensaje puede:
 - resaltar mejor alineación con el negocio
 - apoyarse más en el valor percibido del activo
 
+  ## Canales de envío permitidos
+
+Para msg1 outbound debes intentar contacto por los canales disponibles:
+
+1. WhatsApp, si existe teléfono verificable
+2. Email, si existe email verificable
+
+### WhatsApp
+
+Usa WhatsApp Cloud API con el template aprobado correspondiente.
+
+No uses mensaje libre fuera de ventana de 24 horas.
+No declares envío exitoso sin `WA_MSG_ID`.
+
+### Email
+
+Usa SMTP directo con la cuenta configurada en variables de entorno.
+
+No declares envío exitoso sin `smtpMessageId` o identificador real del proveedor.
+
+### Si hay ambos canales
+
+Si existen teléfono y email verificables, intenta ambos canales respetando la ventana prudente.
+
+### Si falta un canal
+
+Si falta teléfono, usa email si está disponible.
+Si falta email, usa WhatsApp si está disponible.
+Si faltan ambos, bloquea el ticket y escala al CEO.
+
+Nunca inventes teléfono o email.
+
 ## Reglas de veracidad técnica
 
 1. Nunca declares WhatsApp enviado sin WA_MSG_ID.
