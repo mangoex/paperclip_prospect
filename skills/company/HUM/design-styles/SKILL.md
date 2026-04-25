@@ -1,6 +1,6 @@
 ---
 name: "design-styles"
-description: "Catálogo de 10 estilos visuales únicos para propuestas web de Humanio — tipografía, paleta, modo, efectos CSS y giros recomendados. El WebDesigner DEBE seleccionar un estilo diferente para cada prospecto."
+description: "Catálogo de 10 estilos visuales únicos para propuestas web de Humanio — tipografía, paleta, modo, efectos CSS y giros recomendados. El DesignPlanner DEBE seleccionar un estilo diferente para cada prospecto."
 slug: "design-styles"
 metadata:
   paperclip:

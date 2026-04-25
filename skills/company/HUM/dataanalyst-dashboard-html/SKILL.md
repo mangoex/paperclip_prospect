@@ -36,7 +36,7 @@ Antes de generar el HTML, confirma que tienes:
 ### Conteos por Etapa (pipeline)
 - `N_SCOUT` — cantidad en etapa Scout
 - `N_QUALIFIER` — cantidad en etapa Qualifier
-- `N_WEBDESIGNER` — cantidad en etapa WebDesigner
+- `N_WEBPUBLISHER` — cantidad en etapa WebPublisher (publicación)
 - `N_OUTREACH` — cantidad en etapa Outreach
 - `N_CLOSER` — cantidad en etapa Closer
 - `N_CERRADOS` — total cerrados (ganados)
@@ -44,8 +44,8 @@ Antes de generar el HTML, confirma que tienes:
 
 ### Tasas de Conversión entre etapas
 - `CONV_SCOUT_QUAL` — Scout → Qualifier (%)
-- `CONV_QUAL_WEB` — Qualifier → WebDesigner (%)
-- `CONV_WEB_OUT` — WebDesigner → Outreach (%)
+- `CONV_QUAL_DP` — Qualifier → DesignPlanner (%)
+- `CONV_WP_OUT` — WebPublisher → Outreach (%)
 - `CONV_OUT_CLOSE` — Outreach → Closer (%)
 - `CONV_CLOSE_WIN` — Closer → Ganado (%)
 
@@ -78,7 +78,7 @@ Cada prospect debe incluir:
 - `PAIS` — país
 - `SCORE` — puntuación de calificación (0-100)
 - `PAQUETE` — Starter/Pro/Business
-- `ETAPA` — Scout/Qualifier/WebDesigner/Outreach/Closer/Ganado/Perdido
+- `ETAPA` — Scout/Qualifier/DesignPlanner/WebBuilder/WebQA/WebPublisher/Outreach/Closer/Ganado/Perdido
 - `CONTACTO_EMAIL` — ✅ o ❌ (fue contactado por email)
 - `CONTACTO_WA` — ✅ o ❌ (fue contactado por WhatsApp)
 - `RESPUESTA` — texto de respuesta o "Sin respuesta"
@@ -424,18 +424,18 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
         </div>
         <div class="stage-count">{N_QUALIFIER}</div>
       </div>
-      <div class="conv-rate" style="margin-left:140px">Conversión: {CONV_QUAL_WEB}% → WebDesigner</div>
+      <div class="conv-rate" style="margin-left:140px">Conversión: {CONV_QUAL_DP}% → DesignPlanner</div>
 
       <div class="funnel-stage aos">
-        <div class="stage-label">🎨 WebDesigner</div>
+        <div class="stage-label">🚀 WebPublisher</div>
         <div class="stage-bar-wrap">
           <div class="stage-bar">
-            <div class="stage-bar-fill" id="bar-webdesigner" data-value="{N_WEBDESIGNER}" data-max="{TOTAL_PROSPECTOS}"></div>
+            <div class="stage-bar-fill" id="bar-webpublisher" data-value="{N_WEBPUBLISHER}" data-max="{TOTAL_PROSPECTOS}"></div>
           </div>
         </div>
-        <div class="stage-count">{N_WEBDESIGNER}</div>
+        <div class="stage-count">{N_WEBPUBLISHER}</div>
       </div>
-      <div class="conv-rate" style="margin-left:140px">Conversión: {CONV_WEB_OUT}% → Outreach</div>
+      <div class="conv-rate" style="margin-left:140px">Conversión: {CONV_WP_OUT}% → Outreach</div>
 
       <div class="funnel-stage aos">
         <div class="stage-label">📧 Outreach</div>
@@ -806,7 +806,7 @@ MRR: ${MRR_ACTUAL} (target: ${MRR_TARGET})
 
 - **NUNCA dejar marcadores `{...}` sin reemplazar** — revisa el HTML completo antes de desplegar
 - **Todos los datos deben ser reales** — obtenidos de Paperclip issues API, NO inventados
-- **Validar totales:** N_SCOUT + N_QUALIFIER + N_WEBDESIGNER + N_OUTREACH + N_CLOSER + N_CERRADOS + N_PERDIDOS = TOTAL_PROSPECTOS (aproximadamente, puede haber variación mínima)
+- **Validar totales:** N_SCOUT + N_QUALIFIER + N_WEBPUBLISHER + N_OUTREACH + N_CLOSER + N_CERRADOS + N_PERDIDOS = TOTAL_PROSPECTOS (aproximadamente, puede haber variación mínima)
 - **Validar MRR:** REV_STARTER + REV_PRO + REV_BUSINESS ≈ MRR_ACTUAL (dentro de tolerancia de ±2%)
 - **Validar geografía:** N_MEXICO + N_COLOMBIA + N_PERU + N_ARGENTINA ≈ TOTAL_PROSPECTOS
 - **Valores porcentuales:** Todas las tasas (conversión, churn, apertura, respuesta) deben estar entre 0-100%
@@ -838,14 +838,14 @@ TOTAL_PROSPECTOS: 47
 PROSPECTOS_NUEVOS: 8
 N_SCOUT: 15
 N_QUALIFIER: 12
-N_WEBDESIGNER: 10
+N_WEBPUBLISHER: 10
 N_OUTREACH: 6
 N_CLOSER: 2
 N_CERRADOS: 2
 N_PERDIDOS: 4
 CONV_SCOUT_QUAL: 80
-CONV_QUAL_WEB: 83
-CONV_WEB_OUT: 100
+CONV_QUAL_DP: 83
+CONV_WP_OUT: 100
 CONV_OUT_CLOSE: 33
 CONV_CLOSE_WIN: 100
 MRR_ACTUAL: 2840

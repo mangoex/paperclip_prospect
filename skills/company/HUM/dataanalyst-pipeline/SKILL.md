@@ -92,13 +92,13 @@ Formato del reporte (comentario en el ticket asignado):
 
 ### Tasas de conversión
 - Scout → Qualifier: **{N}%**
-- Qualifier → WebDesigner: **{N}%**
-- WebDesigner → Outreach: **{N}%**
+- Qualifier → DesignPlanner: **{N}%**
+- WebPublisher → Outreach: **{N}%**
 
 ### Tiempo promedio por etapa
 - Prospección (Scout): ~{N} horas
 - Calificación (Qualifier): ~{N} horas
-- Diseño web (WebDesigner): ~{N} horas
+- Producción web (DesignPlanner→WebBuilder→WebQA→WebPublisher): ~{N} horas
 - Outreach: ~{N} horas
 
 ### Tareas bloqueadas 🔴
@@ -288,7 +288,7 @@ Genera recomendaciones específicas para cada agente:
 - Asuntos que funcionan: "{ejemplo}"
 - Asuntos que no funcionan: "{ejemplo}"
 
-**Para WebDesigner:**
+**Para el equipo web (DesignPlanner→WebBuilder→WebQA→WebPublisher):**
 - Los sitios de {giro} tienen mayor CTR — priorizar calidad en ese giro
 
 ---

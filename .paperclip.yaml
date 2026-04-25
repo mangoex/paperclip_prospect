@@ -3,7 +3,7 @@ schema: "paperclip/v1"
 agents:
   ceo:
     role: "ceo"
-    capabilities: "CEO de Humanio. Coordina Scout, Qualifier, WebDesigner, Outreach, Closer y DataAnalyst. Asigna tareas de prospección, aprueba propuestas, monitorea pipeline. Cuando recibe 'prospectar {giro} en {ciudad}', crea ticket para Scout."
+    capabilities: "CEO de Humanio. Coordina Scout, Qualifier, DesignPlanner, WebBuilder, WebQA, WebPublisher, Outreach, Closer y DataAnalyst. Asigna tareas de prospección, aprueba propuestas, monitorea pipeline. Cuando recibe 'prospectar {giro} en {ciudad}', crea ticket para Scout."
     adapter:
       config:
         model: "claude-sonnet-4-5-20250929"
@@ -46,7 +46,7 @@ agents:
 
   qualifier:
     role: "general"
-    capabilities: "Analista SEO y calificador de prospectos de Humanio. Recibe reportes de Scout, evalúa presencia digital de cada negocio, calcula score de oportunidad (1-10) y genera diagnósticos completos para prospectos con score >= 6. Crea tickets para WebDesigner con briefs completos y le envía mensaje directo."
+    capabilities: "Analista SEO y calificador de prospectos de Humanio. Recibe reportes de Scout, evalúa presencia digital de cada negocio, calcula score de oportunidad (1-10), genera PROSPECT_BRIEF con delivery_mode (template|premier) y crea ticket para DesignPlanner."
     adapter:
       config:
         model: "claude-sonnet-4-5-20250929"
@@ -73,9 +73,57 @@ agents:
           default: ""
           requirement: "optional"
 
-  webdesigner:
+  designplanner:
     role: "general"
-    capabilities: "Diseñador web premium de Humanio. Recibe briefs del Qualifier y genera sitios de 3 páginas (presentación, propuesta comercial, reporte SEO) en HTML/CSS/JS con estilos visuales únicos por prospecto y efectos JS premium obligatorios. Publica en Surge.sh, crea ticket para Outreach y le envía mensaje directo."
+    capabilities: "Planificador de dirección creativa web de Humanio. Recibe PROSPECT_BRIEF del Qualifier y emite TEMPLATE_SPEC (modo template, variante futuristic-v1) o DESIGN_SPEC (modo premier). Crea ticket para WebBuilder."
+    adapter:
+      config:
+        model: "claude-sonnet-4-5-20250929"
+      type: "claude_local"
+    runtime:
+      heartbeat:
+        intervalSec: 300
+      maxConcurrentRuns: 1
+
+  webbuilder:
+    role: "general"
+    capabilities: "Constructor de activos web de Humanio. Instancia el template futuristic-v1 (modo template) o construye experiencia premier según DESIGN_SPEC. Genera 3 páginas (index, propuesta, reporte) en /tmp/proposal-{slug}/ y entrega a WebQA."
+    adapter:
+      config:
+        model: "claude-sonnet-4-5-20250929"
+      type: "claude_local"
+    runtime:
+      heartbeat:
+        intervalSec: 300
+      maxConcurrentRuns: 1
+    inputs:
+      env:
+        PEXELS_API_KEY:
+          description: "Pexels API key para video hero del template — pexels.com/api"
+          kind: "secret"
+          default: ""
+          requirement: "required"
+        TWENTY_FIRST_API_KEY:
+          description: "21st.dev API key para componentes UI premium opcionales (modo premier)"
+          kind: "secret"
+          default: ""
+          requirement: "optional"
+
+  webqa:
+    role: "general"
+    capabilities: "Auditor técnico, comercial y de marca de los activos web. Audita /tmp/proposal-{slug}/ contra reglas de URL, paquetes, marca y delivery_mode. Emite PASS o FAIL. En PASS, hace handoff a WebPublisher."
+    adapter:
+      config:
+        model: "claude-sonnet-4-5-20250929"
+      type: "claude_local"
+    runtime:
+      heartbeat:
+        intervalSec: 300
+      maxConcurrentRuns: 1
+
+  webpublisher:
+    role: "general"
+    capabilities: "Operador de release web. Publica el árbol completo en humanio.surge.sh/{slug}/, verifica HTTP 200 en las 3 URLs, registra en Supabase y hace handoff a Outreach (outbound) o Closer (inbound)."
     adapter:
       config:
         model: "claude-sonnet-4-5-20250929"
@@ -91,16 +139,16 @@ agents:
           kind: "secret"
           default: ""
           requirement: "required"
-        PEXELS_API_KEY:
-          description: "Pexels API key para imágenes hero de los sitios — pexels.com/api"
+        SUPABASE_URL:
+          description: "Supabase project URL"
           kind: "secret"
           default: ""
           requirement: "required"
-        TWENTY_FIRST_API_KEY:
-          description: "21st.dev API key para componentes UI premium opcionales"
+        SUPABASE_SERVICE_KEY:
+          description: "Supabase service role key"
           kind: "secret"
           default: ""
-          requirement: "optional"
+          requirement: "required"
 
   outreach:
     role: "general"
@@ -349,14 +397,6 @@ routines:
         label: "hourly-recovery"
         timezone: "America/Mazatlan"
 
-  webdesigner-revisar-briefs-pendientes:
-    status: "paused"
-    triggers:
-      - kind: "schedule"
-        cronExpression: "10 * * * *"
-        label: "hourly-recovery"
-        timezone: "America/Mazatlan"
-
   dataanalyst-pipeline-semanal:
     status: "active"
     triggers:
@@ -370,7 +410,10 @@ sidebar:
     - "ceo"
     - "scout"
     - "qualifier"
-    - "webdesigner"
+    - "designplanner"
+    - "webbuilder"
+    - "webqa"
+    - "webpublisher"
     - "outreach"
     - "closer"
     - "dataanalyst"

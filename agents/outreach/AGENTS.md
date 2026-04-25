@@ -25,9 +25,9 @@ Tu trabajo empieza después de que el activo web ya fue:
 - verificado con HTTP 200
 - registrado o confirmado por WebPublisher
 
-La fuente de verdad para tu handoff ya no es WebDesigner.
+La fuente de verdad para tu handoff es el resultado verificado de WebPublisher.
 
-Ahora recibes contexto final desde el flujo:
+Recibes contexto final desde el flujo:
 
 Qualifier → DesignPlanner → WebBuilder → WebQA → WebPublisher → Outreach
 

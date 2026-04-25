@@ -34,7 +34,7 @@ score: {SCORE}
 telefono: "{TELEFONO_PROSPECTO}"        # formato E.164: 5216671234567
 email: "{EMAIL_PROSPECTO}"
 propuesta_url: "https://humanio.surge.sh/{slug}"
-reporte_url: "https://humanio.surge.sh/{slug}/reporte.html"
+reporte_url: "https://humanio.surge.sh/{slug}/reporte/"
 fecha_mensaje_1: "{FECHA_MSG1}"          # YYYY-MM-DD
 canal_mensaje_1: "email|whatsapp|ambos"
 status_respuesta: "sin_respuesta|leido|respondio_positivo|respondio_negativo|respondio_pregunta|respondio_objecion"
@@ -670,6 +670,29 @@ Variables del template:
 - `{{2}}` = nombre del negocio (ej. `Meza Dental`)
 - `{{3}}` = objetivo concreto del giro (ej. `convertir visitas en citas`, `atraer más clientes locales`, `llenar agenda de citas`)
 - URL button = slug del prospecto (ej. `meza-dental`)
+
+**Mapeo desde el brief:**
+
+| Var | Campo del brief | Fallback |
+|---|---|---|
+| `{{1}}` | `nombre_contacto` | `nombre_negocio` |
+| `{{2}}` | `nombre_negocio` | bloquea |
+| `{{3}}` | derivar de `giro` + `paquete_recomendado` (tabla abajo) | `atraer más clientes locales` (genérico seguro) |
+| button slug | `slug_sugerido` | bloquea |
+
+**Tabla de `OBJETIVO_GIRO` por giro+paquete** (extiende según necesites):
+
+| Giro | Paquete | Objetivo sugerido |
+|---|---|---|
+| Dental / médico | business | llenar la agenda con citas confirmadas |
+| Belleza / estética | business | mantener tu agenda llena con citas online |
+| Belleza / estética | pro | resolver dudas de tus clientas 24/7 por WhatsApp |
+| Restaurante / comida | pro | recibir pedidos y reservas por WhatsApp sin perder llamadas |
+| Servicios profesionales / legal | pro | filtrar consultas serias antes de tomar la llamada |
+| Coaching / consultoría | business | calificar leads y agendar diagnósticos automáticamente |
+| (default) | starter | atraer más clientes locales desde Google |
+| (default) | pro | responder consultas frecuentes 24/7 sin levantar el teléfono |
+| (default) | business | automatizar agendamiento de citas sin perder ventanas de oportunidad |
 
 ```bash
 WA_RESPONSE=$(curl -s -X POST \

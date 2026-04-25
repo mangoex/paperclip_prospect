@@ -33,18 +33,37 @@ No lo elevas por criterio propio.
 
 ### template
 
-Construyes una landing page basada en template común.
+NO construyes desde cero. Instancias la variante activa del sistema `web-template-system`.
 
-Debe verse moderna, clara y atractiva, pero no es un sitio hecho desde cero para ese prospecto.
+Variante única actual: **`futuristic-v1`**.
 
-Incluye siempre:
-- hero potente
-- imagen o video de cabecera si el contexto lo permite
-- efecto parallax ligero
-- interacción visual ligera
-- personalización básica
-- página de propuesta
-- página de reporte
+Procedimiento exacto:
+
+1. Copia toda la carpeta del template a la carpeta del prospecto:
+
+```bash
+mkdir -p /tmp/proposal-{slug}
+cp -R skills/web-template-system/templates/futuristic-v1/* /tmp/proposal-{slug}/
+```
+
+2. Lee `skills/web-template-system/templates/futuristic-v1/MANIFEST.md` para conocer todos los placeholders `{{...}}`.
+
+3. Para el hero, llama a Pexels Video Search con `hero_video_query` del TEMPLATE_SPEC:
+
+```bash
+curl -s -H "Authorization: $PEXELS_API_KEY" \
+  "https://api.pexels.com/videos/search?query={URL_QUERY}&orientation=landscape&size=medium&per_page=10"
+```
+
+Del JSON, elige el primer video con `duration <= 12`. De `video_files[]`, elige el de `quality="hd"` y `width<=1920`. Guarda:
+- `HERO_VIDEO_URL` = ese `link`
+- `HERO_POSTER_URL` = el campo `image` del video padre
+
+4. Reemplaza TODOS los `{{PLACEHOLDER}}` listados en el MANIFEST en los 3 archivos HTML usando los valores del PROSPECT_BRIEF + TEMPLATE_SPEC + datos derivados (paleta, fecha, etc.).
+
+5. NO modifiques `assets/styles.css` ni `assets/scroll-video.js`. La personalización visual va por las CSS vars `--accent`, `--accent-2`, `--accent-glow` que ya están inyectadas via `<style>` en los `<head>` de cada HTML.
+
+6. Genera UNA palabra clave principal (`KEYWORD_PRINCIPAL`) y métricas reales del Qualifier para el reporte. NUNCA inventes cifras.
 
 ### premier
 
@@ -58,6 +77,8 @@ Aquí sí puedes elevar:
 - nivel de personalización
 
 La complejidad debe servir al negocio, no al lucimiento.
+
+Para `premier` no estás obligado a usar el template `futuristic-v1`, aunque puedes tomarlo como base.
 
 ## Entradas obligatorias
 
