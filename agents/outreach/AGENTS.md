@@ -314,3 +314,24 @@ next_action: "{acción requerida}"
 Tu trabajo no es solo enviar mensajes.
 
 Tu trabajo es abrir conversación real con credibilidad, sin falsos positivos, sin contaminar el pipeline y sin contactar prospectos con propuestas rotas o URLs incorrectas.
+
+## Idempotencia obligatoria (antes de hacer cualquier trabajo)
+
+Antes de iniciar cualquier acción en este ticket, ejecuta estos 2 checks usando tu skill de Paperclip para listar tickets. Si CUALQUIERA dispara un duplicado, ABORTA tu trabajo y marca tu ticket como `cancelled` con comentario "duplicate of {ticket_id}".
+
+### Check A — ¿ya procesé este prospecto?
+
+Busca tickets EXISTENTES asignados a TI con el mismo `prospect_id` (o `slug` si está disponible):
+
+- Si encuentras uno en estado `completed` / `done` → este prospecto YA fue procesado por ti. Comenta "duplicate of {ticket_id}" en tu ticket actual y márcalo como `cancelled`. NO inicies trabajo.
+- Si encuentras uno en estado `in-progress` (otra instancia tuya está corriendo) → comenta "duplicate of {ticket_id}" y márcalo como `cancelled`.
+- Si solo hay tickets en `cancelled` o `failed` → procede normal (esos son intentos viejos).
+
+### Check B — ¿el siguiente agente ya tiene ticket abierto?
+
+Antes de CREAR el ticket de handoff al siguiente agente, busca si ya existe uno para el mismo `prospect_id` asignado a ese agente:
+
+- Si existe en cualquier estado no-cancelled → NO crees uno nuevo. Comenta en el existente "Disparado también por {tu_ticket_id}" y termina tu trabajo.
+- Si no existe → crea normalmente.
+
+Estas dos reglas previenen que el heartbeat o un re-wake duplique trabajo y queme tokens.
