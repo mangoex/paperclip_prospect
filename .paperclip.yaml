@@ -224,15 +224,15 @@ agents:
           default: ""
           requirement: "optional"
         WHATSAPP_PHONE_NUMBER_ID:
-          description: "Meta WhatsApp Business phone number ID"
+          description: "Meta WhatsApp Business phone number ID — usado para envío de templates msg1/msg2/msg3"
           kind: "secret"
           default: ""
-          requirement: "optional"
+          requirement: "required"
         WHATSAPP_CLOUD_API_TOKEN:
           description: "Meta WhatsApp Business Cloud API permanent token"
           kind: "secret"
           default: ""
-          requirement: "optional"
+          requirement: "required"
         CHATWOOT_API_URL:
           description: "URL base de Chatwoot (sin slash final)"
           kind: "secret"
@@ -252,6 +252,21 @@ agents:
           description: "ID del inbox de email en Chatwoot (contacto@humanio.digital = 2)"
           kind: "secret"
           default: "2"
+          requirement: "required"
+        CHATWOOT_WHATSAPP_INBOX_ID:
+          description: "ID del inbox de WhatsApp en Chatwoot — para registrar conversaciones que el Closer continuará"
+          kind: "secret"
+          default: "3"
+          requirement: "required"
+        SUPABASE_URL:
+          description: "Supabase project URL — para INSERT en outreach_log y PATCH de etapa"
+          kind: "secret"
+          default: ""
+          requirement: "required"
+        SUPABASE_SERVICE_KEY:
+          description: "Supabase service role key"
+          kind: "secret"
+          default: ""
           requirement: "required"
 
   closer:
@@ -328,15 +343,15 @@ agents:
           default: ""
           requirement: "optional"
         WHATSAPP_PHONE_NUMBER_ID:
-          description: "Meta WhatsApp Business phone number ID"
+          description: "Meta WhatsApp Business phone number ID — usado para envío de templates msg1/msg2/msg3"
           kind: "secret"
           default: ""
-          requirement: "optional"
+          requirement: "required"
         WHATSAPP_CLOUD_API_TOKEN:
           description: "Meta WhatsApp Business Cloud API permanent token"
           kind: "secret"
           default: ""
-          requirement: "optional"
+          requirement: "required"
         CHATWOOT_API_URL:
           description: "URL base de Chatwoot (sin slash final)"
           kind: "secret"
@@ -356,6 +371,21 @@ agents:
           description: "ID del inbox de email en Chatwoot (contacto@humanio.digital = 2)"
           kind: "secret"
           default: "2"
+          requirement: "required"
+        CHATWOOT_WHATSAPP_INBOX_ID:
+          description: "ID del inbox de WhatsApp en Chatwoot — para responder en el mismo hilo del Outreach"
+          kind: "secret"
+          default: "3"
+          requirement: "required"
+        SUPABASE_URL:
+          description: "Supabase project URL — para INSERT msg2/msg3 en outreach_log"
+          kind: "secret"
+          default: ""
+          requirement: "required"
+        SUPABASE_SERVICE_KEY:
+          description: "Supabase service role key"
+          kind: "secret"
+          default: ""
           requirement: "required"
 
   dataanalyst:
