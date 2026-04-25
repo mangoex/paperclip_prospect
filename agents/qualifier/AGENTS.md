@@ -386,23 +386,26 @@ Un buen trabajo de Qualifier:
 - enruta a DesignPlanner
 - protege recursos del sistema
 
-## Idempotencia obligatoria (antes de hacer cualquier trabajo)
+## Idempotencia inteligente (antes de hacer cualquier trabajo)
 
-Antes de iniciar cualquier acción en este ticket, ejecuta estos 2 checks usando tu skill de Paperclip para listar tickets. Si CUALQUIERA dispara un duplicado, ABORTA tu trabajo y marca tu ticket como `cancelled` con comentario "duplicate of {ticket_id}".
+La fuente de verdad NO es el estado del ticket — es la EVIDENCIA real (archivos, registros DB, HTTP, tickets downstream). Un ticket "completed" puede no haber producido nada útil; un ticket "failed" puede haber dejado trabajo válido a medias.
 
-### Check A — ¿ya procesé este prospecto?
+### Check A — ¿el siguiente agente ya tiene trabajo real?
 
-Busca tickets EXISTENTES asignados a TI con el mismo `prospect_id` (o `slug` si está disponible):
+Antes de crear un ticket nuevo a DesignPlanner, verifica:
 
-- Si encuentras uno en estado `completed` / `done` → este prospecto YA fue procesado por ti. Comenta "duplicate of {ticket_id}" en tu ticket actual y márcalo como `cancelled`. NO inicies trabajo.
-- Si encuentras uno en estado `in-progress` (otra instancia tuya está corriendo) → comenta "duplicate of {ticket_id}" y márcalo como `cancelled`.
-- Si solo hay tickets en `cancelled` o `failed` → procede normal (esos son intentos viejos).
+1. ¿Existe ya un ticket asignado a DesignPlanner para este `prospect_id`?
+   - Si SÍ y su status es `in-progress` o `completed` → NO crees otro. Comenta en el existente "re-disparado por {tu_ticket_id}" y termina.
+   - Si SÍ pero su status es `cancelled`/`failed` → ese intento murió, puedes reintentar.
 
-### Check B — ¿el siguiente agente ya tiene ticket abierto?
+2. ¿Existe ya un PROSPECT_BRIEF en Supabase para este `prospect_id`?
+   - Si SÍ → ya calificaste este prospecto. Comenta y márcate como `cancelled`.
+   - Si NO → procede a calificar.
 
-Antes de CREAR el ticket de handoff al siguiente agente, busca si ya existe uno para el mismo `prospect_id` asignado a ese agente:
+### Check B — ¿hay otra instancia tuya corriendo para este prospecto?
 
-- Si existe en cualquier estado no-cancelled → NO crees uno nuevo. Comenta en el existente "Disparado también por {tu_ticket_id}" y termina tu trabajo.
-- Si no existe → crea normalmente.
+Lista tickets asignados a Qualifier con mismo `prospect_id` o mismo "Familydent | Culiacán" (heurística de nombre+ciudad si no hay prospect_id aún):
+- Si encuentras OTRO ticket Qualifier con status `in-progress` y `created_at` anterior al tuyo → otra instancia está corriendo. Comenta "duplicate of {ticket_id}" y márcate como `cancelled`.
+- Si solo está el tuyo → procede.
 
-Estas dos reglas previenen que el heartbeat o un re-wake duplique trabajo y queme tokens.
+Estas reglas previenen quemar tokens en duplicados PERO permiten reintento legítimo cuando un intento previo falló sin producir el artefacto esperado.

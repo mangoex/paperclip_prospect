@@ -97,23 +97,47 @@ mkdir -p /tmp/humanio-root
 
 cd /tmp/humanio-root
 
-3. Intentar traer el estado actual del dominio raíz:
+3. Traer el estado actual del dominio raíz — SIN `|| true` silencioso:
 
-SURGE_TOKEN=$SURGE_TOKEN surge fetch humanio.surge.sh . || true
+```bash
+SURGE_TOKEN=$SURGE_TOKEN surge fetch humanio.surge.sh .
+FETCH_EXIT=$?
+```
 
-4. Borrar solo la carpeta del prospecto actual, si existe:
+Si `FETCH_EXIT != 0`, NO continúes con el deploy a menos que cumplas UNA de estas dos condiciones:
 
+- **Primera publicación detectada**: el comando devolvió un error específico de "domain not found" o "no project found" Y `humanio.surge.sh` realmente no tiene contenido previo (verifica con `curl -I https://humanio.surge.sh/` → HTTP 404). En ese caso es seguro proceder con el árbol nuevo.
+- **El error es transitorio** (timeout, red): reintenta `surge fetch` UNA vez. Si vuelve a fallar, ABORTA con `status: publish_blocked, blocking_reason: surge_fetch_failed`. NO publiques.
+
+Razón: si `surge fetch` falla y publicas igual, sobrescribes `humanio.surge.sh` con SOLO el slug actual y BORRAS todos los prospectos publicados anteriormente. Esto es destrucción irreversible de propuestas activas.
+
+4. Verifica que el árbol traído tenga sentido:
+
+```bash
+ls /tmp/humanio-root/ | wc -l
+```
+
+Si `humanio.surge.sh` ya tenía N slugs publicados y ahora `/tmp/humanio-root/` está vacío o con muy pocos, ABORTA — el fetch no trajo el estado real.
+
+5. Borrar SOLO la carpeta del prospecto actual, si existe:
+
+```bash
 rm -rf /tmp/humanio-root/{slug}
+```
 
-5. Copiar el build aprobado:
+6. Copiar el build aprobado:
 
+```bash
 cp -R /tmp/proposal-{slug} /tmp/humanio-root/{slug}
+```
 
-6. Publicar TODO el árbol raíz al dominio único:
+7. Publicar TODO el árbol raíz al dominio único:
 
+```bash
 SURGE_TOKEN=$SURGE_TOKEN surge /tmp/humanio-root humanio.surge.sh
+```
 
-Nunca publiques solo /tmp/proposal-{slug} directo a un subpath.
+Nunca publiques solo `/tmp/proposal-{slug}` directo a un subpath.
 
 ## Verificación HTTP obligatoria
 
@@ -208,9 +232,46 @@ Saca esta decisión del campo `lead_source` o `delivery_mode` del PROSPECT_BRIEF
    Ticket: {nuevo_ticket_id}
    ```
 
-3. Solo después de los pasos 1 y 2 puedes marcar TU ticket actual como completado.
+3. **PRECONDICIÓN DURA**: NO marques tu propio ticket como completado hasta que hayas verificado que el ticket de Outreach (o Closer) realmente fue creado y aceptado por el panel. Si el panel rechaza la creación, no marques done. La regla es: tu trabajo solo termina cuando el siguiente agente tiene su ticket vivo.
 
-Si no creas el ticket o no envías el mensaje directo, el prospecto queda publicado pero nadie le contacta.
+Si te despiertas vía heartbeat y ves que la publicación ya está hecha (HTTP 200 verificado, Supabase actualizado) PERO no existe ticket de Outreach/Closer, tu trabajo es: crear ESE ticket y enviar el mensaje directo. NO regenerar el deploy. Después marca done.
+
+## Bloque obligatorio del handoff (todos los campos)
+
+El cuerpo del ticket nuevo y el contexto que pasas al siguiente agente DEBE incluir TODOS estos campos del PROSPECT_BRIEF original (los necesita Outreach para armar el template WhatsApp):
+
+```
+status: ready_for_outreach
+prospect_id: "{prospect_id}"
+slug: "{slug}"
+delivery_mode: "{template|premier}"
+paquete_recomendado: "{starter|pro|business}"
+
+# URLs publicadas
+url_principal: "https://humanio.surge.sh/{slug}/"
+url_propuesta: "https://humanio.surge.sh/{slug}/propuesta/"
+url_reporte:   "https://humanio.surge.sh/{slug}/reporte/"
+estado_publicacion: "confirmada"
+http_checks: { principal: 200, propuesta: 200, reporte: 200 }
+
+# Datos del brief que Outreach necesita para el template msg1
+nombre_negocio:    "{nombre_negocio}"
+nombre_contacto:   "{nombre_contacto_o_vacio}"
+especialidad:      "{especialidad}"
+ciudad:            "{ciudad}"
+keyword_principal: "{keyword_principal}"
+busquedas_mes:     "{N_o_null}"
+
+# Datos de contacto
+telefono: "{telefono_E164}"
+email:    "{email}"
+
+# Contexto comercial
+oportunidad_comercial: "{resumen}"
+observaciones: "{observaciones relevantes}"
+```
+
+Si CUALQUIERA de los campos de "datos del brief" o "datos de contacto" no está en el contexto que recibiste, busca el ticket original del Qualifier en la cadena padre y extrae el `PROSPECT_BRIEF` completo. NO dejes vacíos los campos críticos. Si después de buscar siguen faltando, escala al CEO en lugar de hacer handoff incompleto.
 
 ## Casos inbound
 
@@ -288,23 +349,25 @@ Tu trabajo termina únicamente cuando existe una publicación real, verificada y
 
 Si no hay URLs funcionando con HTTP 200, el trabajo no está terminado.
 
-## Idempotencia obligatoria (antes de hacer cualquier trabajo)
+## Idempotencia inteligente (antes de hacer cualquier trabajo)
 
-Antes de iniciar cualquier acción en este ticket, ejecuta estos 2 checks usando tu skill de Paperclip para listar tickets. Si CUALQUIERA dispara un duplicado, ABORTA tu trabajo y marca tu ticket como `cancelled` con comentario "duplicate of {ticket_id}".
+La fuente de verdad NO es el estado del ticket — es la EVIDENCIA real (archivos, registros DB, HTTP, tickets downstream). Un ticket "completed" puede no haber producido nada útil; un ticket "failed" puede haber dejado trabajo válido a medias.
 
-### Check A — ¿ya procesé este prospecto?
+### Check A — ¿el sitio ya está publicado y verificado?
 
-Busca tickets EXISTENTES asignados a TI con el mismo `prospect_id` (o `slug` si está disponible):
+```bash
+PRINCIPAL=$(curl -s -o /dev/null -w "%{http_code}" "https://humanio.surge.sh/{slug}/")
+PROPUESTA=$(curl -s -o /dev/null -w "%{http_code}" "https://humanio.surge.sh/{slug}/propuesta/")
+REPORTE=$(curl -s -o /dev/null -w "%{http_code}" "https://humanio.surge.sh/{slug}/reporte/")
+```
 
-- Si encuentras uno en estado `completed` / `done` → este prospecto YA fue procesado por ti. Comenta "duplicate of {ticket_id}" en tu ticket actual y márcalo como `cancelled`. NO inicies trabajo.
-- Si encuentras uno en estado `in-progress` (otra instancia tuya está corriendo) → comenta "duplicate of {ticket_id}" y márcalo como `cancelled`.
-- Si solo hay tickets en `cancelled` o `failed` → procede normal (esos son intentos viejos).
+- Si los 3 responden `200` → ya está publicado. **NO** re-publiques.
+  - PERO verifica si existe ticket de Outreach (o Closer) para este `prospect_id`. Si NO existe → tu trabajo no terminó: crea el ticket de Outreach/Closer con TODOS los campos del brief y manda mensaje directo. Después marca tu ticket como `done`.
+  - Si SÍ existe ticket de Outreach/Closer → todo está hecho. Comenta y márcate como `cancelled` (duplicado).
+- Si CUALQUIERA responde != 200 → procede con el deploy.
 
-### Check B — ¿el siguiente agente ya tiene ticket abierto?
+### Check B — ¿hay otro WebPublisher corriendo?
 
-Antes de CREAR el ticket de handoff al siguiente agente, busca si ya existe uno para el mismo `prospect_id` asignado a ese agente:
+- Si encuentras otro ticket WebPublisher con mismo `prospect_id` y status `in-progress` y `created_at` anterior → marca el tuyo como `cancelled`.
 
-- Si existe en cualquier estado no-cancelled → NO crees uno nuevo. Comenta en el existente "Disparado también por {tu_ticket_id}" y termina tu trabajo.
-- Si no existe → crea normalmente.
-
-Estas dos reglas previenen que el heartbeat o un re-wake duplique trabajo y queme tokens.
+Estas reglas previenen quemar tokens en duplicados PERO permiten reintento legítimo cuando un intento previo falló sin producir el artefacto esperado.

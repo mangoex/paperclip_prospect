@@ -179,23 +179,27 @@ Después de envíos reales:
 Tu trabajo no es solo seguir insistiendo.
 Tu trabajo es convertir interés, objeciones o dudas en una decisión real, sin contaminar el pipeline con estados falsos ni con promesas exageradas.
 
-## Idempotencia obligatoria (antes de hacer cualquier trabajo)
+## Idempotencia inteligente (antes de hacer cualquier trabajo)
 
-Antes de iniciar cualquier acción en este ticket, ejecuta estos 2 checks usando tu skill de Paperclip para listar tickets. Si CUALQUIERA dispara un duplicado, ABORTA tu trabajo y marca tu ticket como `cancelled` con comentario "duplicate of {ticket_id}".
+La fuente de verdad NO es el estado del ticket — es la EVIDENCIA real (archivos, registros DB, HTTP, tickets downstream). Un ticket "completed" puede no haber producido nada útil; un ticket "failed" puede haber dejado trabajo válido a medias.
 
-### Check A — ¿ya procesé este prospecto?
+### Check A — ¿ya envié msg2/msg3 a este prospecto?
 
-Busca tickets EXISTENTES asignados a TI con el mismo `prospect_id` (o `slug` si está disponible):
+Consulta `outreach_log` (igual que Outreach hace para msg1):
 
-- Si encuentras uno en estado `completed` / `done` → este prospecto YA fue procesado por ti. Comenta "duplicate of {ticket_id}" en tu ticket actual y márcalo como `cancelled`. NO inicies trabajo.
-- Si encuentras uno en estado `in-progress` (otra instancia tuya está corriendo) → comenta "duplicate of {ticket_id}" y márcalo como `cancelled`.
-- Si solo hay tickets en `cancelled` o `failed` → procede normal (esos son intentos viejos).
+```sql
+SELECT id, status, provider_message_id, tipo, created_at, error_detail
+FROM outreach_log
+WHERE prospect_id = '{prospect_id}' AND tipo IN ('msg2','msg3')
+ORDER BY created_at DESC;
+```
 
-### Check B — ¿el siguiente agente ya tiene ticket abierto?
+- Si ya hay `msg3` con `status=sent` → ciclo cerrado. NO envíes más. Solo responde si el prospecto reactivó conversación.
+- Si ya hay `msg2` con `status=sent` y todavía no es día 7 → espera. NO disparar msg3 antes de tiempo.
+- Si el último intento del tipo que tocaba enviar tiene `status=failed` → puedes reintentar.
 
-Antes de CREAR el ticket de handoff al siguiente agente, busca si ya existe uno para el mismo `prospect_id` asignado a ese agente:
+### Check B — ¿hay otro Closer corriendo para este prospecto?
 
-- Si existe en cualquier estado no-cancelled → NO crees uno nuevo. Comenta en el existente "Disparado también por {tu_ticket_id}" y termina tu trabajo.
-- Si no existe → crea normalmente.
+- Si encuentras otro ticket Closer con mismo `prospect_id` y status `in-progress` y `created_at` anterior → marca el tuyo como `cancelled` y comenta "duplicate of {ticket_id}".
 
-Estas dos reglas previenen que el heartbeat o un re-wake duplique trabajo y queme tokens.
+Estas reglas previenen quemar tokens en duplicados PERO permiten reintento legítimo cuando un intento previo falló sin producir el artefacto esperado.

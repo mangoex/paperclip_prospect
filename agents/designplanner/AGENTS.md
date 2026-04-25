@@ -239,23 +239,20 @@ Después de emitir el `TEMPLATE_SPEC` o `DESIGN_SPEC`, debes despertar a **WebBu
 
 3. Solo después de los pasos 1 y 2 puedes marcar TU ticket actual como completado.
 
-## Idempotencia obligatoria (antes de hacer cualquier trabajo)
+## Idempotencia inteligente (antes de hacer cualquier trabajo)
 
-Antes de iniciar cualquier acción en este ticket, ejecuta estos 2 checks usando tu skill de Paperclip para listar tickets. Si CUALQUIERA dispara un duplicado, ABORTA tu trabajo y marca tu ticket como `cancelled` con comentario "duplicate of {ticket_id}".
+La fuente de verdad NO es el estado del ticket — es la EVIDENCIA real (archivos, registros DB, HTTP, tickets downstream). Un ticket "completed" puede no haber producido nada útil; un ticket "failed" puede haber dejado trabajo válido a medias.
 
-### Check A — ¿ya procesé este prospecto?
+### Check A — ¿WebBuilder ya recibió un spec para este prospecto?
 
-Busca tickets EXISTENTES asignados a TI con el mismo `prospect_id` (o `slug` si está disponible):
+Antes de emitir TEMPLATE_SPEC o DESIGN_SPEC y crear ticket WebBuilder, verifica:
 
-- Si encuentras uno en estado `completed` / `done` → este prospecto YA fue procesado por ti. Comenta "duplicate of {ticket_id}" en tu ticket actual y márcalo como `cancelled`. NO inicies trabajo.
-- Si encuentras uno en estado `in-progress` (otra instancia tuya está corriendo) → comenta "duplicate of {ticket_id}" y márcalo como `cancelled`.
-- Si solo hay tickets en `cancelled` o `failed` → procede normal (esos son intentos viejos).
+- ¿Existe ya un ticket de WebBuilder para este `prospect_id` con status `in-progress` o `completed`?
+  - Si SÍ → ya entregué spec. Comenta en el WebBuilder existente "re-disparado por {tu_ticket_id}" y márcate como `cancelled`.
+  - Si SÍ pero el WebBuilder está en `cancelled`/`failed` → puedes reintentar (tu spec puede ser mejor).
 
-### Check B — ¿el siguiente agente ya tiene ticket abierto?
+### Check B — ¿hay otro DesignPlanner corriendo para este prospecto?
 
-Antes de CREAR el ticket de handoff al siguiente agente, busca si ya existe uno para el mismo `prospect_id` asignado a ese agente:
+- Si encuentras otro ticket DesignPlanner con mismo `prospect_id` y status `in-progress` y `created_at` anterior al tuyo → marca el tuyo como `cancelled` con "duplicate of {ticket_id}".
 
-- Si existe en cualquier estado no-cancelled → NO crees uno nuevo. Comenta en el existente "Disparado también por {tu_ticket_id}" y termina tu trabajo.
-- Si no existe → crea normalmente.
-
-Estas dos reglas previenen que el heartbeat o un re-wake duplique trabajo y queme tokens.
+Estas reglas previenen quemar tokens en duplicados PERO permiten reintento legítimo cuando un intento previo falló sin producir el artefacto esperado.

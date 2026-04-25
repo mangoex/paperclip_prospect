@@ -51,13 +51,51 @@ cp -R skills/web-template-system/templates/futuristic-v1/* /tmp/proposal-{slug}/
 3. Para el hero, llama a Pexels Video Search con `hero_video_query` del TEMPLATE_SPEC:
 
 ```bash
-curl -s -H "Authorization: $PEXELS_API_KEY" \
-  "https://api.pexels.com/videos/search?query={URL_QUERY}&orientation=landscape&size=medium&per_page=10"
+if [ -z "$PEXELS_API_KEY" ]; then
+  HERO_FALLBACK=1
+else
+  PEXELS_RESP=$(curl -s -w "\n%{http_code}" -H "Authorization: $PEXELS_API_KEY" \
+    "https://api.pexels.com/videos/search?query={URL_QUERY}&orientation=landscape&size=medium&per_page=10")
+  PEXELS_CODE=$(echo "$PEXELS_RESP" | tail -n1)
+  if [ "$PEXELS_CODE" != "200" ]; then
+    HERO_FALLBACK=1
+  fi
+fi
 ```
 
-Del JSON, elige el primer video con `duration <= 12`. De `video_files[]`, elige el de `quality="hd"` y `width<=1920`. Guarda:
+Si la llamada funcionó (`HERO_FALLBACK` no seteado): del JSON, elige el primer video con `duration <= 12`. De `video_files[]`, elige el de `quality="hd"` y `width<=1920`. Guarda:
 - `HERO_VIDEO_URL` = ese `link`
 - `HERO_POSTER_URL` = el campo `image` del video padre
+
+### Fallback obligatorio si Pexels falla o no hay key
+
+Si `HERO_FALLBACK=1` por cualquier razón (no API key, key expirada, rate limit, query sin resultados, error de red), NO bloquees el build. Construye el hero con un **gradiente CSS animado** en lugar de video:
+
+1. Elimina del `index.html` la etiqueta `<video class="hero__video" ...>` y la imagen poster.
+2. Reemplaza `<div class="hero__video-wrap">...</div>` por un `<div class="hero__gradient">` con este CSS adicional inyectado en el `<style>` del `<head>`:
+
+```css
+.hero__gradient {
+  position: absolute; inset: 0; z-index: -2;
+  background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 50%, var(--bg-1) 100%);
+}
+.hero__gradient::before {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(var(--accent-glow), 0.35), transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(129, 140, 248, 0.25), transparent 55%);
+  filter: blur(60px);
+  animation: hero-drift 18s ease-in-out infinite alternate;
+}
+@keyframes hero-drift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(20px, -20px, 0) scale(1.1); }
+}
+```
+
+3. Documenta en `qa_notes` del handoff: `"Hero usando fallback CSS (Pexels {razón}). WebQA: aceptar como válido."`
+
+Esto evita que un problema operativo de Pexels detenga toda la cadena.
 
 4. Reemplaza TODOS los `{{PLACEHOLDER}}` listados en el MANIFEST en los 3 archivos HTML usando los valores del PROSPECT_BRIEF + TEMPLATE_SPEC + datos derivados (paleta, fecha, etc.).
 
@@ -328,23 +366,32 @@ El orden correcto del pipeline es:
 
 WebBuilder → WebQA → WebPublisher → Outreach
 
-## Idempotencia obligatoria (antes de hacer cualquier trabajo)
+## Idempotencia inteligente (antes de hacer cualquier trabajo)
 
-Antes de iniciar cualquier acción en este ticket, ejecuta estos 2 checks usando tu skill de Paperclip para listar tickets. Si CUALQUIERA dispara un duplicado, ABORTA tu trabajo y marca tu ticket como `cancelled` con comentario "duplicate of {ticket_id}".
+La fuente de verdad NO es el estado del ticket — es la EVIDENCIA real (archivos, registros DB, HTTP, tickets downstream). Un ticket "completed" puede no haber producido nada útil; un ticket "failed" puede haber dejado trabajo válido a medias.
 
-### Check A — ¿ya procesé este prospecto?
+### Check A — ¿el build ya existe en disco?
 
-Busca tickets EXISTENTES asignados a TI con el mismo `prospect_id` (o `slug` si está disponible):
+Antes de invocar Pexels o reemplazar placeholders:
 
-- Si encuentras uno en estado `completed` / `done` → este prospecto YA fue procesado por ti. Comenta "duplicate of {ticket_id}" en tu ticket actual y márcalo como `cancelled`. NO inicies trabajo.
-- Si encuentras uno en estado `in-progress` (otra instancia tuya está corriendo) → comenta "duplicate of {ticket_id}" y márcalo como `cancelled`.
-- Si solo hay tickets en `cancelled` o `failed` → procede normal (esos son intentos viejos).
+```bash
+if [ -f "/tmp/proposal-{slug}/index.html" ] \
+   && [ -f "/tmp/proposal-{slug}/propuesta/index.html" ] \
+   && [ -f "/tmp/proposal-{slug}/reporte/index.html" ]; then
+  BUILD_EXISTS=1
+fi
+```
 
-### Check B — ¿el siguiente agente ya tiene ticket abierto?
+- Si `BUILD_EXISTS=1` → NO regeneres HTML. Comenta "build ya existe en disco — handoff a WebQA con el build existente" y dispara directo el handoff a WebQA con los archivos actuales.
+- Si NO existe → procede a construir.
 
-Antes de CREAR el ticket de handoff al siguiente agente, busca si ya existe uno para el mismo `prospect_id` asignado a ese agente:
+### Check B — ¿WebQA ya tiene ticket para este slug?
 
-- Si existe en cualquier estado no-cancelled → NO crees uno nuevo. Comenta en el existente "Disparado también por {tu_ticket_id}" y termina tu trabajo.
-- Si no existe → crea normalmente.
+- Si encuentras ticket WebQA con mismo `prospect_id`/`slug` en status `in-progress` o `completed` → no crees otro WebQA. Comenta y termina.
+- Si solo hay WebQA `cancelled`/`failed` → puedes reintentar el handoff.
 
-Estas dos reglas previenen que el heartbeat o un re-wake duplique trabajo y queme tokens.
+### Check C — ¿hay otra instancia tuya corriendo?
+
+- Si encuentras otro ticket WebBuilder con mismo `prospect_id` y status `in-progress` y `created_at` anterior → marca el tuyo como `cancelled`.
+
+Estas reglas previenen quemar tokens en duplicados PERO permiten reintento legítimo cuando un intento previo falló sin producir el artefacto esperado.
