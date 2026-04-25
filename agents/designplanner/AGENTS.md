@@ -213,3 +213,28 @@ Tu salida debe ser concreta, breve y ejecutable.
 No entregues prosa vaga.
 No entregues inspiración abstracta.
 Entrega especificación utilizable.
+
+## Handoff obligatorio a WebBuilder (no opcional)
+
+Después de emitir el `TEMPLATE_SPEC` o `DESIGN_SPEC`, debes despertar a **WebBuilder** explícitamente.
+
+### Acción obligatoria
+
+1. **Crea un ticket nuevo asignado al agente `webbuilder`** con:
+
+   - Título: `WebBuilder: construir site para {nombre_negocio} ({slug})`
+   - Prioridad: la del PROSPECT_BRIEF
+   - Issue padre: el ticket actual de DesignPlanner (linked)
+   - Cuerpo: el `PROSPECT_BRIEF` resumido + el `TEMPLATE_SPEC` o `DESIGN_SPEC` completo
+
+2. **Envía un mensaje directo al agente `webbuilder`** con el texto:
+
+   ```
+   Hola WebBuilder — spec listo para construir.
+   Negocio: {nombre_negocio}
+   Slug: {slug}
+   delivery_mode: {template|premier}
+   Ticket: {nuevo_ticket_id}
+   ```
+
+3. Solo después de los pasos 1 y 2 puedes marcar TU ticket actual como completado.
