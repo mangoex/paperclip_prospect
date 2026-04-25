@@ -71,6 +71,60 @@ Si solo hay uno, usa el que haya. Si no hay ninguno, escala al CEO — probable 
 > ⚠️ **Crítico**: para primer contacto fuera de ventana de 24 h, Meta EXIGE `type: "template"`.
 > NUNCA uses `type: "text"` para msg1. Eso solo funciona dentro de ventana 24 h abierta — y en outbound frío esa ventana NO está abierta.
 
+### 0. Preflight de credenciales (antes de cualquier intento de envío)
+
+Verifica que `WHATSAPP_PHONE_NUMBER_ID` y `WHATSAPP_CLOUD_API_TOKEN` están válidos ANTES de armar el payload del template. Esto separa "credenciales rotas" de "payload mal" o "número inválido", y evita que el agente reporte error confuso.
+
+```bash
+# Variables canónicas — NO uses aliases
+PHONE_ID="${WHATSAPP_PHONE_NUMBER_ID:?missing WHATSAPP_PHONE_NUMBER_ID}"
+TOKEN="${WHATSAPP_CLOUD_API_TOKEN:?missing WHATSAPP_CLOUD_API_TOKEN}"
+
+# GET al phone_number_id — debe responder 200 con metadatos del número
+PREFLIGHT=$(curl -s -o /tmp/wa-preflight.json -w "%{http_code}" \
+  -H "Authorization: Bearer $TOKEN" \
+  "https://graph.facebook.com/v19.0/$PHONE_ID")
+
+case "$PREFLIGHT" in
+  200)
+    echo "✓ preflight WhatsApp OK"
+    ;;
+  401|403)
+    cat /tmp/wa-preflight.json
+    cat <<EOF
+status: outreach_blocked
+blocking_reason: credential_error
+failed_step: preflight
+http_code: $PREFLIGHT
+detail: "WHATSAPP_CLOUD_API_TOKEN inválido, expirado o sin permisos sobre PHONE_NUMBER_ID=$PHONE_ID. Verifica System User Token en Meta Business Manager."
+next_action: "CEO debe regenerar token permanente y actualizar variable de entorno. Después CREAR RUN NUEVO (no reintentar este)."
+EOF
+    exit 1
+    ;;
+  404)
+    cat <<EOF
+status: outreach_blocked
+blocking_reason: invalid_phone_number_id
+http_code: 404
+detail: "WHATSAPP_PHONE_NUMBER_ID=$PHONE_ID no existe en la cuenta de Meta."
+EOF
+    exit 1
+    ;;
+  *)
+    cat /tmp/wa-preflight.json
+    cat <<EOF
+status: outreach_blocked
+blocking_reason: preflight_unexpected
+http_code: $PREFLIGHT
+detail: "Respuesta inesperada de Meta durante preflight. Revisar logs."
+EOF
+    exit 1
+    ;;
+esac
+```
+
+Importante: cuando una variable de entorno se actualiza después de un fallo de credenciales, NO REINTENTES el run viejo — Paperclip puede tener el entorno congelado en runs ya iniciados. Crea un run nuevo.
+
 ### Template a usar
 
 **Nombre**: `humanio_prospecto_inicial`

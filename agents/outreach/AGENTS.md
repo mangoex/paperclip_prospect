@@ -315,23 +315,34 @@ Tu trabajo no es solo enviar mensajes.
 
 Tu trabajo es abrir conversación real con credibilidad, sin falsos positivos, sin contaminar el pipeline y sin contactar prospectos con propuestas rotas o URLs incorrectas.
 
-## Idempotencia obligatoria (antes de hacer cualquier trabajo)
+## Idempotencia inteligente (antes de hacer cualquier trabajo)
 
-Antes de iniciar cualquier acción en este ticket, ejecuta estos 2 checks usando tu skill de Paperclip para listar tickets. Si CUALQUIERA dispara un duplicado, ABORTA tu trabajo y marca tu ticket como `cancelled` con comentario "duplicate of {ticket_id}".
+Para Outreach, la fuente de verdad NO son los tickets — son los registros en `outreach_log` de Supabase. Un ticket "completed" puede haber fallado en el envío real; un ticket "failed" puede haber enviado el mensaje antes de morir. Solo el `provider_message_id` real cuenta.
 
-### Check A — ¿ya procesé este prospecto?
+### Check A — ¿ya envié msg1 a este prospecto?
 
-Busca tickets EXISTENTES asignados a TI con el mismo `prospect_id` (o `slug` si está disponible):
+Antes de armar payload, consulta:
 
-- Si encuentras uno en estado `completed` / `done` → este prospecto YA fue procesado por ti. Comenta "duplicate of {ticket_id}" en tu ticket actual y márcalo como `cancelled`. NO inicies trabajo.
-- Si encuentras uno en estado `in-progress` (otra instancia tuya está corriendo) → comenta "duplicate of {ticket_id}" y márcalo como `cancelled`.
-- Si solo hay tickets en `cancelled` o `failed` → procede normal (esos son intentos viejos).
+```sql
+SELECT id, status, provider_message_id, created_at, error_detail
+FROM outreach_log
+WHERE prospect_id = '{prospect_id}' AND tipo = 'msg1'
+ORDER BY created_at DESC LIMIT 1;
+```
 
-### Check B — ¿el siguiente agente ya tiene ticket abierto?
+Tres escenarios:
 
-Antes de CREAR el ticket de handoff al siguiente agente, busca si ya existe uno para el mismo `prospect_id` asignado a ese agente:
+| Resultado | Acción |
+|---|---|
+| Fila con `status=sent` y `provider_message_id` no null | YA se envió. Comenta "msg1 ya enviado: id={provider_message_id}" en tu ticket, márcalo como `cancelled` (duplicado real). NO reenvíes. |
+| Fila con `status=failed` o con `error_detail` | Intento previo falló. PUEDES reintentar. Procede con preflight + envío. |
+| Sin filas | Nunca se ha intentado. Procede normal. |
 
-- Si existe en cualquier estado no-cancelled → NO crees uno nuevo. Comenta en el existente "Disparado también por {tu_ticket_id}" y termina tu trabajo.
-- Si no existe → crea normalmente.
+### Check B — ¿hay otro Outreach activo para este prospecto?
 
-Estas dos reglas previenen que el heartbeat o un re-wake duplique trabajo y queme tokens.
+Lista tickets asignados a Outreach con mismo `prospect_id`:
+
+- Si encuentras OTRO con status `in-progress` y creado antes que el tuyo → otra instancia tuya está corriendo. Comenta "duplicate of {ticket_id}" y márcate como `cancelled`.
+- Si solo encuentras el tuyo → procede.
+
+Estas reglas previenen quemar tokens en duplicados PERO permiten reintento legítimo cuando un envío falló (token caducado, número inválido, error transitorio, etc.).
