@@ -1,7 +1,14 @@
 ---
-name: objection-handling
-description: Use when preparing responses to prospect objections during outbound, discovery, or follow-up conversations.
-source: https://github.com/gtmagents/gtm-agents
+name: "objection-handling"
+slug: "objection-handling"
+description: "Use when preparing responses to prospect objections during outbound, discovery, or follow-up conversations."
+source: "https://github.com/gtmagents/gtm-agents"
+metadata:
+  paperclip:
+    slug: "objection-handling"
+    skillKey: "gtmagents/gtm-agents/objection-handling"
+  paperclipSkillKey: "gtmagents/gtm-agents/objection-handling"
+key: "gtmagents/gtm-agents/objection-handling"
 ---
 
 # Objection Handling Skill
