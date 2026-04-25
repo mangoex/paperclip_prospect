@@ -6,7 +6,7 @@
 
 | Content | Count |
 |---------|-------|
-| Agents | 9 |
+| Agents | 10 |
 | Projects | 1 |
 | Skills | 51 |
 | Tasks | 2 |
