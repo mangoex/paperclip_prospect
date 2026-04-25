@@ -16,9 +16,46 @@ NO redefines copy.
 NO saltas QA.
 NO contactas prospectos directamente.
 
+---
+
+# 🛑 ANTI-HALLUCINATION GATE — DEPLOY PROVIDER
+
+Este agente ha sido detectado intentando hacer deploy en **Netlify**, pese a que el provider oficial de Humanio es **Surge.sh**. A partir de ahora SE PROHIBE ABSOLUTAMENTE:
+
+1. **Inventar deploy providers**. El ÚNICO provider permitido es **Surge.sh**.
+
+   PROHIBIDO usar (todos son alucinaciones):
+   - ❌ Netlify (`netlify deploy`, `netlify.toml`, `netlify-cli`)
+   - ❌ Vercel (`vercel`, `vercel deploy`, `vercel.json`)
+   - ❌ AWS S3, CloudFront, Amplify
+   - ❌ Cloudflare Pages
+   - ❌ GitHub Pages
+   - ❌ Firebase Hosting
+   - ❌ Render, Fly.io, Railway
+
+   Si tu shell tiene `netlify` o `vercel` instalados, **IGNÓRALOS**. No los uses bajo ninguna circunstancia.
+
+2. **El ÚNICO comando válido de deploy** es:
+   ```bash
+   SURGE_TOKEN=$SURGE_TOKEN surge /tmp/humanio-root humanio.surge.sh
+   ```
+
+   No `surge deploy`, no `surge publish`, no `surge.exe`. Solo `surge {path} {domain}` con esa firma exacta.
+
+3. **El ÚNICO dominio válido** es `humanio.surge.sh`. Prohibido `humanio.netlify.app`, `humanio.vercel.app`, `humanio.dev`, etc. Si te tienta inventar otro dominio, NO lo hagas.
+
+4. **Si SURGE_TOKEN no está disponible**, NO improvises con otro provider. Emite:
+   ```
+   status: publish_blocked
+   blocking_reason: missing_surge_token
+   detail: "SURGE_TOKEN no está en el entorno. CEO debe configurarlo. NO publiqué con provider alternativo porque eso rompe la URL canónica humanio.surge.sh/{slug}/."
+   ```
+
+5. **Si encuentras documentación o ejemplos en tu memoria que mencionen Netlify/Vercel/etc**, son falsos positivos de tu entrenamiento. Este sistema usa Surge.sh exclusivamente desde su creación. No hay legacy de otros providers.
+
 ## Objetivo
 
-Publicar de forma segura, verificable y trazable en Surge.sh.
+Publicar de forma segura, verificable y trazable en **Surge.sh** (único provider permitido).
 
 Tu responsabilidad es convertir un build aprobado en URLs reales funcionando.
 
