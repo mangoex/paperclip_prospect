@@ -34,7 +34,7 @@ score: {SCORE}
 telefono: "{TELEFONO_PROSPECTO}"        # formato E.164: 5216671234567
 email: "{EMAIL_PROSPECTO}"
 propuesta_url: "https://humanio.surge.sh/{slug}"
-reporte_url: "https://humanio.surge.sh/{slug}/reporte.html"
+reporte_url: "https://humanio.surge.sh/{slug}/reporte/"
 fecha_mensaje_1: "{FECHA_MSG1}"          # YYYY-MM-DD
 canal_mensaje_1: "email|whatsapp|ambos"
 status_respuesta: "sin_respuesta|leido|respondio_positivo|respondio_negativo|respondio_pregunta|respondio_objecion"

@@ -74,20 +74,24 @@ Si solo hay uno, usa el que haya. Si no hay ninguno, escala al CEO — probable 
 ### Template a usar
 
 **Nombre**: `humanio_prospecto_inicial`
+**Idioma**: `es_MX`
 
-**Variables del body** (`bo_text` parameters):
+**Variables del body** (5, en este orden):
 
-> TODO — confirmar con Miguel los nombres y orden EXACTO de las variables.
-> Asunción de partida (ajustar antes de producción):
-> - `{{1}}` = nombre del contacto o negocio
-> - `{{2}}` = ciudad
->
-> Si el template tiene más vars, agregar al array `body_params`.
+| Var | Significado | Ejemplo |
+|---|---|---|
+| `{{1}}` | Nombre del contacto (con título si aplica: Dr., Sra., etc.) | `Dr. Meza` |
+| `{{2}}` | Especialidad / nicho del negocio | `implantología y prótesis` |
+| `{{3}}` | Ciudad | `Culiacán` |
+| `{{4}}` | Keyword principal de búsqueda | `dentista Culiacán` |
+| `{{5}}` | Nombre del negocio | `Meza Dental` |
 
-**Variable del botón URL** (1 sola, al final):
+> Si falta el nombre del contacto, usa `Hola` como apertura genérica + nombre del negocio. NUNCA dejes el placeholder visible.
+
+**Variable del botón URL** (1, al final):
 - `{{1}}` = `{slug}` → forma final `https://humanio.surge.sh/{slug}`
 
-(Meta exige que el placeholder esté al FINAL de la URL — esto está confirmado y es por qué el dominio raíz es `humanio.surge.sh/{slug}`).
+(Meta exige que el placeholder esté al FINAL de la URL — por eso el dominio raíz es `humanio.surge.sh/{slug}`).
 
 ### Envío
 
@@ -104,8 +108,11 @@ WA_PAYLOAD=$(cat <<JSON
       {
         "type": "body",
         "parameters": [
-          { "type": "text", "text": "$NOMBRE_CONTACTO_O_NEGOCIO" },
-          { "type": "text", "text": "$CIUDAD" }
+          { "type": "text", "text": "$NOMBRE_CONTACTO" },
+          { "type": "text", "text": "$ESPECIALIDAD" },
+          { "type": "text", "text": "$CIUDAD" },
+          { "type": "text", "text": "$KEYWORD_PRINCIPAL" },
+          { "type": "text", "text": "$NOMBRE_NEGOCIO" }
         ]
       },
       {
