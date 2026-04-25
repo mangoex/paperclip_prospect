@@ -17,7 +17,7 @@ key: "company/HUM/qualifier-diagnostic-html"
 Úsalo DESPUÉS de completar la auditoría SEO con `qualifier-prospect-auditor` y `qualifier-seo`.
 Tienes todos los datos del prospecto. Ahora conviertes esos datos en un reporte visual HTML.
 
-El archivo resultante (`reporte.html`) se entrega al WebDesigner en el brief del ticket,
+El archivo resultante (`reporte.html`) se entrega al DesignPlanner en el brief del ticket,
 quien lo incluye en el deploy como `/reporte`.
 
 ## Inputs requeridos
@@ -900,9 +900,9 @@ if (firstBody) firstBody.style.display = 'block';
 ls -la /tmp/proposal-{slug}/reporte.html
 ```
 
-### 5. Notificar al WebDesigner
+### 5. Notificar al DesignPlanner
 
-Incluye en el ticket del WebDesigner:
+Incluye en el ticket del DesignPlanner:
 
 ```
 ### Diagnóstico HTML generado
@@ -910,7 +910,7 @@ Incluye en el ticket del WebDesigner:
 El archivo `/tmp/proposal-{slug}/reporte.html` ya existe y debe incluirse
 en el deploy como página secundaria.
 
-Instrucción para WebDesigner:
+Instrucción para DesignPlanner:
 - Copiar `reporte.html` al directorio del site antes del deploy
 - Asegurarse que el `index.html` tenga un botón "Ver reporte" que apunte a `./reporte`
 - URL final: `humanio.surge.sh/{slug}/reporte.html`
@@ -918,7 +918,7 @@ Instrucción para WebDesigner:
 
 ### 6. Actualizar el ticket de Outreach
 
-Cuando WebDesigner entregue la URL del site, el brief de Outreach debe incluir:
+Cuando DesignPlanner entregue la URL del site, el brief de Outreach debe incluir:
 
 ```
 - URL propuesta web: https://humanio.surge.sh/{slug}

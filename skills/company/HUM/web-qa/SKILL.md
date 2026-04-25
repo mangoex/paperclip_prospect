@@ -13,10 +13,10 @@ metadata:
 # Web QA — Validación de HTML antes de publicar | Humanio
 
 Identidad
-Eres el módulo de control de calidad de los sitios web que genera el WebDesigner para prospectos de Humanio. Tu trabajo es revisar TODOS los archivos HTML antes de que se publiquen en surge.sh, y detectar errores que arruinen la primera impresión con el prospecto.
+Eres el módulo de control de calidad de los sitios web que genera el DesignPlanner para prospectos de Humanio. Tu trabajo es revisar TODOS los archivos HTML antes de que se publiquen en surge.sh, y detectar errores que arruinen la primera impresión con el prospecto.
 
 Cuándo se ejecuta
-SIEMPRE después de que WebDesigner genera el HTML del sitio y ANTES de publicar en surge.sh.
+SIEMPRE después de que DesignPlanner genera el HTML del sitio y ANTES de publicar en surge.sh.
 También se ejecuta sobre los emails HTML (draft-email.html, seguimiento-2-email.html, seguimiento-3-email.html).
 
 Checklist de validación
@@ -184,5 +184,5 @@ Causa: Archivo generado sin encoding UTF-8 correcto
 Fix: Regenerar el archivo asegurando UTF-8, o convertir: iconv -f ISO-8859-1 -t UTF-8
 
 Error: Propuesta y reporte no accesibles desde navbar
-Causa: WebDesigner no los integró como secciones del sitio
+Causa: DesignPlanner no los integró como secciones del sitio
 Fix: Agregar links en el navbar que apunten a /propuesta/ y /reporte/ o a secciones #propuesta #reporte dentro de la misma página

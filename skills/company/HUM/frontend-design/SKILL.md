@@ -1,6 +1,6 @@
 ---
 name: "frontend-design"
-description: "Guía de diseño frontend premium para WebDesigner — patrones visuales, efectos CSS/JS avanzados, sistema de diseño Humanio y checklist de calidad para propuestas web de alto impacto."
+description: "Guía de diseño frontend premium para DesignPlanner — patrones visuales, efectos CSS/JS avanzados, sistema de diseño Humanio y checklist de calidad para propuestas web de alto impacto."
 slug: "frontend-design"
 metadata:
   paperclip:
@@ -15,7 +15,7 @@ key: "company/HUM/frontend-design"
 
 ## Propósito
 
-Este skill es la guía de referencia visual del WebDesigner. Define el sistema de diseño de Humanio, patrones de UI reutilizables, efectos CSS/JS avanzados y el checklist de calidad que toda propuesta debe pasar antes de publicarse.
+Este skill es la guía de referencia visual del DesignPlanner. Define el sistema de diseño de Humanio, patrones de UI reutilizables, efectos CSS/JS avanzados y el checklist de calidad que toda propuesta debe pasar antes de publicarse.
 
 Consulta este skill ANTES de construir cada propuesta para mantener consistencia y nivel premium.
 

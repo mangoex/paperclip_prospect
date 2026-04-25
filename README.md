@@ -6,9 +6,9 @@
 
 | Content | Count |
 |---------|-------|
-| Agents | 10 |
+| Agents | 9 |
 | Projects | 1 |
-| Skills | 52 |
+| Skills | 51 |
 | Tasks | 2 |
 
 ### Agents
@@ -62,7 +62,7 @@ What changes is the level of customization of the landing page.
 
 ### Skills
 
-52 skills including: alert-manager, backlink-analyzer, competitor-analysis, content-gap-analysis, content-quality-auditor, content-refresher, domain-authority-auditor, entity-optimizer, geo-content-optimizer, internal-linking-optimizer, keyword-research, memory-management, meta-tags-optimizer, on-page-seo-auditor, performance-reporter, rank-tracker, schema-markup-generator, seo-content-writer, serp-analysis, technical-seo-checker, frontend-design, outreach-proposals, qualifier-prospect-auditor, qualifier-seo, scout-prospector, webdesigner-proposals, frontend-design-review, frontend-ui-dark-ts, closer-sales, sales-copywriting, dataanalyst-pipeline, web-qa, qualifier-diagnostic-html, package-pricing, package-outreach, saas-metrics, retention-playbook, ui-ux-pro-max, paperclip-create-agent, paperclip-create-plugin, paperclip, para-memory-files, objection-handling, social-selling, cold-outreach, lead-qualification, web-scraping, web-template-system, web-premier-system
+51 skills including: alert-manager, backlink-analyzer, competitor-analysis, content-gap-analysis, content-quality-auditor, content-refresher, domain-authority-auditor, entity-optimizer, geo-content-optimizer, internal-linking-optimizer, keyword-research, memory-management, meta-tags-optimizer, on-page-seo-auditor, performance-reporter, rank-tracker, schema-markup-generator, seo-content-writer, serp-analysis, technical-seo-checker, frontend-design, outreach-proposals, qualifier-prospect-auditor, qualifier-seo, scout-prospector, frontend-design-review, frontend-ui-dark-ts, closer-sales, sales-copywriting, dataanalyst-pipeline, web-qa, qualifier-diagnostic-html, package-pricing, package-outreach, saas-metrics, retention-playbook, ui-ux-pro-max, paperclip-create-agent, paperclip-create-plugin, paperclip, para-memory-files, objection-handling, social-selling, cold-outreach, lead-qualification, web-scraping, web-template-system, web-premier-system, layout-blueprints, design-styles, dataanalyst-dashboard-html
 
 ## Getting Started
 

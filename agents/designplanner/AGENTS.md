@@ -65,22 +65,27 @@ Lo respetas.
 ## Salidas permitidas
 
 ### Si `delivery_mode = template`
-Debes producir `TEMPLATE_SPEC` con esta estructura mínima:
+
+Solo existe UNA variante activa: `futuristic-v1`.
+
+Por eso el `TEMPLATE_SPEC` es deliberadamente corto (ahorro de tokens):
 
 - prospect_id
 - slug_sugerido
-- template_variant
-- reason_template_variant
-- palette
-- heading_font
-- body_font
-- hero_style
-- media_direction
-- personalization_fields
-- proposal_focus
-- diagnostic_emphasis
-- interaction_level
-- notes_for_builder
+- template_variant: "futuristic-v1"   # fijo por ahora
+- palette:
+    accent: "#HEX"
+    accent_2: "#HEX"
+- hero_video_query: "{2-4 palabras EN inglés para Pexels — ej: 'dental clinic interior'}"
+- hero_headline_pre / hero_headline_accent / hero_headline_post
+- hero_subhead
+- diagnostic_lead
+- proposal_focus     # qué resaltar de la propuesta
+- notes_for_builder  # cualquier detalle que el WebBuilder deba saber
+
+Nada más. No agregues campos que el template no use.
+
+Para elegir paleta usa la tabla por giro del MANIFEST (`templates/futuristic-v1/MANIFEST.md`).
 
 ### Si `delivery_mode = premier`
 Debes producir `DESIGN_SPEC` con esta estructura mínima:

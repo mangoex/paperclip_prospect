@@ -81,20 +81,21 @@ No cambies por prospecto:
 - microinteracciones complejas
 - sistema visual entero
 
-## Variantes permitidas
+## Variantes disponibles
 
-Se permiten hasta 3 variantes base de template.
+### `futuristic-v1` (única variante activa)
 
-### 1. `institutional`
-Para negocios que necesitan transmitir confianza, claridad y seriedad.
+Carpeta: `templates/futuristic-v1/`
 
-### 2. `bold`
-Para negocios que pueden soportar una presencia más llamativa o contemporánea.
+Características:
+- estética moderna, oscura, glass + acentos neon-lite
+- hero con video de Pexels y efecto parallax scroll-scrubbed en desktop
+- fallback a video en loop en mobile / `prefers-reduced-motion`
+- 3 páginas listas: `index.html`, `propuesta/index.html`, `reporte/index.html`
+- placeholders documentados en `templates/futuristic-v1/MANIFEST.md`
+- paleta personalizable por prospecto vía CSS vars (`--accent`, `--accent-2`)
 
-### 3. `warm-local`
-Para negocios de cercanía, servicios locales o tono humano más directo.
-
-No inventes variantes nuevas fuera de estas sin una razón fuerte.
+Esta es la única variante activa. No inventes variantes nuevas sin instrucción explícita del CEO.
 
 ## Nivel de interacción permitido
 
