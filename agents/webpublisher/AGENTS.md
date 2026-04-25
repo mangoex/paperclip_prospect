@@ -349,6 +349,41 @@ Tu trabajo termina únicamente cuando existe una publicación real, verificada y
 
 Si no hay URLs funcionando con HTTP 200, el trabajo no está terminado.
 
+## 🔒 Lock atómico de ejecución (PASO 0 — antes de TODO)
+
+Antes de leer cualquier otra regla, ANTES del check de idempotencia, ANTES de cualquier consulta o llamada API, ejecuta este bloque:
+
+```bash
+SLUG="{slug_o_prospect_id}"  # usa lo que tengas — slug si está, sino prospect_id
+LOCK_BASE="/tmp/.humanio-locks/$SLUG"
+mkdir -p "$LOCK_BASE"
+LOCK_DIR="$LOCK_BASE/webpublisher.lock"
+
+# mkdir es atómico a nivel POSIX. Solo un proceso puede crear el directorio.
+# Si ya existe, otro webpublisher está trabajando en este prospecto.
+if ! mkdir "$LOCK_DIR" 2>/dev/null; then
+  echo "🔒 LOCKED: another webpublisher instance is already processing $SLUG"
+  echo "Aborting to prevent duplicate work — this is normal if heartbeat re-woke me."
+  exit 0
+fi
+
+# Asegura que el lock se libere cuando termines (éxito o error).
+# IMPORTANTE: si tu shell no soporta trap, libera el lock manualmente al final
+# con: rmdir "$LOCK_DIR"
+trap "rmdir $LOCK_DIR 2>/dev/null" EXIT
+echo "🔓 Lock acquired: $LOCK_DIR"
+```
+
+Si NO puedes ejecutar shell o `mkdir` (limitación de runtime), tu primera acción debe ser emitir:
+
+```
+status: blocked
+blocking_reason: runtime_no_shell
+detail: "Mi runtime no permite ejecutar mkdir para lock atómico. CEO debe escalar arquitectura — sin lock no puedo garantizar no-duplicación."
+```
+
+NO procedas sin lock. Procesar sin lock causa el bug 3x duplicación que ya costó tokens en pruebas previas.
+
 ## Idempotencia inteligente (antes de hacer cualquier trabajo)
 
 La fuente de verdad NO es el estado del ticket — es la EVIDENCIA real (archivos, registros DB, HTTP, tickets downstream). Un ticket "completed" puede no haber producido nada útil; un ticket "failed" puede haber dejado trabajo válido a medias.
