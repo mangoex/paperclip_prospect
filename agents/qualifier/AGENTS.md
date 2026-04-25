@@ -220,12 +220,16 @@ Para cada prospecto seleccionado dentro de activation_limit, debes entregar un P
 
 prospect_id: "{id}"
 nombre_negocio: "{nombre}"
+nombre_contacto: "{nombre_persona_con_titulo_si_aplica_o_vacio}"  # ej: "Dr. Meza", "Sra. Pérez". Vacío si no se identificó
 slug_sugerido: "{slug}"
 ciudad: "{ciudad}"
 pais: "{pais}"
-giro: "{giro}"
+giro: "{giro}"                                                     # categoría amplia: "Clínica dental"
+especialidad: "{subnicho_específico_o_giro_si_no_aplica}"          # ej: "implantología y prótesis", "estética facial". Si no hay subnicho claro, repite el giro
 audiencia: "{audiencia}"
 servicios_principales: "{servicios}"
+keyword_principal: "{keyword_más_buscada_para_este_negocio}"        # ej: "dentista Culiacán", "salón de belleza Mazatlán"
+busquedas_mes: "{N_o_null}"                                         # volumen mensual estimado de la keyword principal en la ciudad
 dolores_detectados:
   - "{dolor_1}"
   - "{dolor_2}"
@@ -245,6 +249,8 @@ requested_count: "{número}"
 activation_limit: "{número}"
 activation_rank: "{posición dentro de activados}"
 observaciones: "{notas relevantes}"
+
+> Los 3 campos nuevos (`nombre_contacto`, `especialidad`, `keyword_principal`) los consume directamente Outreach para los parámetros del template WhatsApp `humanio_prospecto_inicial`. Si no puedes identificar `nombre_contacto`, déjalo vacío — Outreach usa el nombre del negocio como fallback. Si no puedes derivar `especialidad`, repite el `giro`. `keyword_principal` SIEMPRE debe poder estimarse del giro+ciudad.
 
 ## Siguiente ticket correcto
 

@@ -93,6 +93,33 @@ Si solo hay uno, usa el que haya. Si no hay ninguno, escala al CEO — probable 
 
 (Meta exige que el placeholder esté al FINAL de la URL — por eso el dominio raíz es `humanio.surge.sh/{slug}`).
 
+### Mapeo desde el PROSPECT_BRIEF del Qualifier
+
+| Var WhatsApp | Campo del brief | Fallback si está vacío |
+|---|---|---|
+| `{{1}}` Nombre | `nombre_contacto` | `nombre_negocio` (sin "Hola" duplicado — el template ya empieza con "Hola {{1}}") |
+| `{{2}}` Especialidad | `especialidad` | `giro` |
+| `{{3}}` Ciudad | `ciudad` | bloquea — no enviar sin ciudad |
+| `{{4}}` Keyword | `keyword_principal` | bloquea — no enviar sin keyword |
+| `{{5}}` Negocio | `nombre_negocio` | bloquea — no enviar sin nombre |
+| Button slug | `slug_sugerido` | bloquea — no enviar sin slug |
+
+Resolución antes de armar el payload:
+
+```bash
+NOMBRE_CONTACTO="${BRIEF_NOMBRE_CONTACTO:-$BRIEF_NOMBRE_NEGOCIO}"
+ESPECIALIDAD="${BRIEF_ESPECIALIDAD:-$BRIEF_GIRO}"
+CIUDAD="$BRIEF_CIUDAD"
+KEYWORD_PRINCIPAL="$BRIEF_KEYWORD_PRINCIPAL"
+NOMBRE_NEGOCIO="$BRIEF_NOMBRE_NEGOCIO"
+SLUG="$BRIEF_SLUG"
+
+# Validación dura — bloquear si falta cualquiera
+for v in CIUDAD KEYWORD_PRINCIPAL NOMBRE_NEGOCIO SLUG; do
+  [ -z "${!v}" ] && { echo "BLOCK: brief incompleto, falta $v"; exit 1; }
+done
+```
+
 ### Envío
 
 ```bash
