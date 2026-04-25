@@ -297,7 +297,31 @@ No marques el trabajo como terminado si no puedes entregar este bloque completo.
 
 Tu siguiente paso después de construir NO es publicar.
 
-Tu siguiente paso es dejar el paquete listo para WebQA.
+Tu siguiente paso es despertar a **WebQA** explícitamente. No basta con emitir el bloque `status: build_ready_for_qa` en tu propio ticket — WebQA no lo verá.
+
+### Acción obligatoria al terminar (no opcional)
+
+1. **Crea un ticket nuevo asignado al agente `webqa`** con:
+
+   - Título: `WebQA: validar build de {nombre_negocio} ({slug})`
+   - Prioridad: la misma del PROSPECT_BRIEF
+   - Issue padre: el ticket actual de WebBuilder (linked)
+   - Cuerpo: el bloque `status: build_ready_for_qa` COMPLETO con todos los campos (prospect_id, slug, delivery_mode, paquete_recomendado, build_path, expected_urls, qa_notes)
+
+2. **Envía un mensaje directo al agente `webqa`** con el texto:
+
+   ```
+   Hola WebQA — build listo para validar.
+   Negocio: {nombre_negocio}
+   Slug: {slug}
+   Path: /tmp/proposal-{slug}/
+   delivery_mode: {template|premier}
+   Ticket: {nuevo_ticket_id}
+   ```
+
+3. Solo después de los pasos 1 y 2 puedes marcar TU ticket actual como completado.
+
+Si no creas el ticket o no envías el mensaje directo, el pipeline se atora y nadie publica.
 
 El orden correcto del pipeline es:
 

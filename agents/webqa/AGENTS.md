@@ -224,21 +224,43 @@ approved_urls:
   reporte: "https://humanio.surge.sh/{slug}/reporte/"
 qa_summary: "{resumen breve de aprobación}"
 
-## Handoff obligatorio a WebPublisher
+## Handoff obligatorio a WebPublisher (PASS)
 
-Si emites PASS, tu siguiente acción es dejar listo el handoff a WebPublisher con:
+Si emites PASS, tu siguiente paso es despertar a **WebPublisher** explícitamente. No basta con emitir el bloque `status: PASS` en tu propio ticket.
 
-- prospect_id
-- slug
-- delivery_mode
-- paquete recomendado
-- build_path
-- approved_urls
-- estado QA: PASS
+### Acción obligatoria al emitir PASS (no opcional)
 
-No marques tu trabajo como terminado si no dejaste este handoff listo para WebPublisher.
+1. **Crea un ticket nuevo asignado al agente `webpublisher`** con:
+
+   - Título: `WebPublisher: publicar {nombre_negocio} ({slug})`
+   - Prioridad: la misma del caso
+   - Issue padre: el ticket actual de WebQA (linked)
+   - Cuerpo: el bloque `status: PASS` COMPLETO con todos los campos (prospect_id, slug, delivery_mode, paquete_recomendado, build_path, approved_urls, qa_summary)
+
+2. **Envía un mensaje directo al agente `webpublisher`** con el texto:
+
+   ```
+   Hola WebPublisher — build aprobado, listo para publicar.
+   Negocio: {nombre_negocio}
+   Slug: {slug}
+   Path: {build_path}
+   delivery_mode: {template|premier}
+   Ticket: {nuevo_ticket_id}
+   ```
+
+3. Solo después de los pasos 1 y 2 puedes marcar TU ticket actual como completado.
+
+Si no creas el ticket o no envías el mensaje directo, el pipeline se atora y nadie publica.
 
 El siguiente agente correcto es WebPublisher, no Outreach.
+
+## Handoff en caso FAIL
+
+Si emites FAIL, NO crees ticket para WebPublisher. En su lugar:
+
+1. Devuelve el caso a **WebBuilder**: agrega un comentario al ticket original de WebBuilder con el bloque FAIL completo (severidades, áreas, problemas, fixes).
+2. Envía un mensaje directo a WebBuilder pidiendo el redo.
+3. Marca TU ticket como completado (tu trabajo aquí terminó: detectaste el fallo).
 
 ## Formato de salida en caso FAIL
 

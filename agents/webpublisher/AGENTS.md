@@ -161,30 +161,56 @@ etapa: propuesta_publicada
 
 No actualices Supabase si el deploy no fue verificado con HTTP 200.
 
-## Handoff obligatorio a Outreach
+## Handoff obligatorio (no opcional)
 
-Después de publicar, verificar y registrar correctamente, debes preparar el handoff a Outreach.
+Después de publicar, verificar y registrar correctamente, debes despertar al siguiente agente explícitamente.
 
-El handoff debe incluir:
+### Decide primero quién sigue
 
-status: ready_for_outreach
-prospect_id: "{prospect_id}"
-slug: "{slug}"
-delivery_mode: "{template|premier}"
-paquete_recomendado: "{starter|pro|business}"
-url_principal: "https://humanio.surge.sh/{slug}/"
-url_propuesta: "https://humanio.surge.sh/{slug}/propuesta/"
-url_reporte: "https://humanio.surge.sh/{slug}/reporte/"
-estado_publicacion: "confirmada"
-http_checks:
-  principal: 200
-  propuesta: 200
-  reporte: 200
-observaciones: "{observaciones relevantes}"
+- **outbound (Scout originó el caso, lead frío o tibio)** → siguiente = `outreach`
+- **inbound, demo solicitada o urgent CEO** → siguiente = `closer`
 
-Si el caso es outbound, el siguiente agente correcto es Outreach.
+Saca esta decisión del campo `lead_source` o `delivery_mode` del PROSPECT_BRIEF original.
 
-No marques tu trabajo como terminado si no dejaste el handoff listo para Outreach.
+### Acción obligatoria
+
+1. **Crea un ticket nuevo asignado al agente correcto** con:
+
+   - Título outbound: `Outreach: msg1 para {nombre_negocio} ({slug})`
+   - Título inbound: `Closer: continuar conversación con {nombre_negocio} ({slug})`
+   - Prioridad: la del caso original
+   - Issue padre: el ticket actual de WebPublisher (linked)
+   - Cuerpo: el bloque `status: ready_for_outreach` (o `ready_for_closer`) COMPLETO con todos los campos:
+
+   ```
+   status: ready_for_outreach
+   prospect_id: "{prospect_id}"
+   slug: "{slug}"
+   delivery_mode: "{template|premier}"
+   paquete_recomendado: "{starter|pro|business}"
+   url_principal: "https://humanio.surge.sh/{slug}/"
+   url_propuesta: "https://humanio.surge.sh/{slug}/propuesta/"
+   url_reporte: "https://humanio.surge.sh/{slug}/reporte/"
+   estado_publicacion: "confirmada"
+   http_checks:
+     principal: 200
+     propuesta: 200
+     reporte: 200
+   observaciones: "{observaciones relevantes}"
+   ```
+
+2. **Envía un mensaje directo al agente** con el texto:
+
+   ```
+   Hola {Outreach|Closer} — propuesta publicada y verificada.
+   Negocio: {nombre_negocio}
+   URL: https://humanio.surge.sh/{slug}/
+   Ticket: {nuevo_ticket_id}
+   ```
+
+3. Solo después de los pasos 1 y 2 puedes marcar TU ticket actual como completado.
+
+Si no creas el ticket o no envías el mensaje directo, el prospecto queda publicado pero nadie le contacta.
 
 ## Casos inbound
 
