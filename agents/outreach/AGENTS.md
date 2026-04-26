@@ -263,16 +263,26 @@ msg1:
 next_step: "Esperar respuesta del prospecto. Si responde, demo intake."
 ```
 
-Crea ticket nuevo asignado al **Closer** con título `Closer: seguimiento {nombre_negocio}`.
+Crea ticket nuevo asignado al **Closer** con:
+
+- Título: `Closer: seguimiento {nombre_negocio}`
+- **Status: `blocked`** (no `in_progress` — esto evita que el harness entre en loop de continuaciones porque el Closer no tiene nada que hacer hasta que el prospecto responda)
+- Blocker / unblock conditions (en el cuerpo del ticket):
+  - "Esperando respuesta del prospecto vía Chatwoot/n8n webhook"
+  - "OR día 3 ({fecha_msg2}) para enviar msg2 (humanio_seguimiento_1)"
+  - "OR día 7 ({fecha_msg3}) para msg3 (humanio_seguimiento_2)"
 
 Envía mensaje directo al Closer:
 ```
 Hola Closer — msg1 enviado a {nombre_negocio}.
 WA_MSG_ID: {WA_MSG_ID}
 SMTP: {messageId}
-Ticket: {nuevo_id}.
-Espera respuesta. Si llega, modo demo intake.
+Ticket: {nuevo_id} (estado: blocked).
+Tu trabajo está en pausa. Te despertarán cuando el prospecto responda
+o cuando llegue día 3 para msg2.
 ```
+
+> ⚠️ **Importante**: NO crees el ticket en estado `in_progress` ni `todo`. Esos estados activan el harness y generan loops de continuación porque el Closer despierta sin tener nada que hacer y el prompt anti-hallucination lo obliga a actuar. `blocked` con condiciones de unblock claras es el estado correcto para "espera pasiva".
 
 ## Restricciones críticas
 

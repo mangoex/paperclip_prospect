@@ -39,7 +39,20 @@ Outreach te pasó un caso con `msg1 enviado`. Tú esperas respuesta del prospect
 - NO dispares demo flow.
 - Solo monitorea Chatwoot para detectar respuesta entrante.
 
-Si llega respuesta: pasa a MODO B (clasificar respuesta).
+#### 🛑 Acción OBLIGATORIA al despertar en MODO A
+
+Verifica el estado de tu ticket actual:
+
+- Si está en `blocked` → ✅ correcto. Termina inmediatamente con `exit 0`. No hagas nada más. NO escribas comentarios, NO repitas el handoff, NO simules trabajo. El harness no te volverá a despertar hasta que algo externo te active (n8n webhook con respuesta del prospecto, o cron de día 3 / día 7).
+
+- Si está en `in_progress` o `todo` → tu ticket está mal configurado y vas a entrar en loop infinito de continuaciones. Tu PRIMERA acción es:
+  1. Cambiar el ticket a `blocked`
+  2. Agregar comentario: "Estado corregido a blocked — esperando respuesta del prospecto o día 3 para msg2."
+  3. Terminar (`exit 0`).
+
+Esta regla previene el bug observado donde el harness despertaba al Closer cada heartbeat sin trabajo real, gastando tokens en loops.
+
+Si llega respuesta entrante (n8n te despierta con un mensaje específico mencionando que el prospecto contestó): pasa a MODO B (clasificar respuesta).
 
 ### MODO B — Clasificar respuesta entrante
 
