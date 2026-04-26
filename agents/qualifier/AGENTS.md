@@ -135,7 +135,7 @@ diagnostico_hallazgos:
 
 # Datos comerciales
 paquete_recomendado: "{starter|pro|business}"
-oportunidad_comercial: "{resumen de 1-2 líneas}"
+oportunidad_comercial: "{frase_corta_vendedora_máx_120_caracteres}"   # va al WhatsApp template como {{4}}
 
 # Datos de contacto (con override del CEO si aplica)
 telefono: "{E.164 sin '+'}"                   # ej: "5216671234567"
@@ -159,8 +159,43 @@ activation_rank: "{posición}"
 observaciones: "{notas}"
 ```
 
-> El campo `ref_slug` es SOLO para el parámetro `?ref=` del URL del template WhatsApp. NO se usa para construir sitio (eso ya no aplica en cold).
-> Los campos `nombre_contacto`, `especialidad`, `keyword_principal`, `nombre_negocio`, `ciudad` los consume Outreach para los 5 parámetros del template Meta `humanio_prospecto_inicial`.
+> Los campos que Outreach consume para el template Meta `humanio_diagnostico_v1`:
+> - `nombre_contacto` (fallback: `nombre_negocio`) → `{{1}}`
+> - `nombre_negocio` → `{{2}}`
+> - `diagnostico_hallazgos[0]` → `{{3}}` (el más fuerte)
+> - `oportunidad_comercial` → `{{4}}` (frase corta vendedora ≤ 120 chars)
+> - `"Miguel de Humanio"` → `{{5}}` (constante)
+>
+> El `ref_slug` ya NO se usa en el template (botón URL es estático a `https://www.humanio.digital`). Lo mantenemos solo para tracking interno y el `?ref=` del CTA del email.
+
+## Sobre `oportunidad_comercial` — formato para WhatsApp
+
+Como va directo al WhatsApp template como `{{4}}`, debe ser una frase corta vendedora, no un análisis. Reglas:
+
+- Máximo 120 caracteres
+- Empieza con verbo de acción (capturar, convertir, automatizar, atraer, reducir)
+- Una sola idea concreta
+- Sin signos de admiración, sin emojis
+
+Ejemplos buenos:
+- "convertir más visitas en conversaciones de WhatsApp"
+- "captar prospectos incluso fuera del horario de atención"
+- "reducir tiempo de respuesta con atención automatizada"
+- "atraer más clientes locales desde Google sin pagar publicidad"
+
+Ejemplos MALOS:
+- "tienen una gran oportunidad de mejorar su presencia digital" (vago)
+- "podrían facturar más" (sin método)
+- "necesitan SEO + WhatsApp + chatbot + IA + landing + redes" (lista, no frase)
+
+## Sobre `diagnostico_hallazgos[0]` — el principal va al WhatsApp
+
+El primer hallazgo del array es el que se manda al WhatsApp como `{{3}}`. Tiene que ser:
+- el más fuerte / específico
+- redactado en 1 oración (≤ 200 chars)
+- que conecte naturalmente con la oportunidad de `{{4}}`
+
+Los demás hallazgos (3-4 totales) van al email, no al WhatsApp.
 
 ## Siguiente ticket correcto
 

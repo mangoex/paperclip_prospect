@@ -56,13 +56,21 @@ Esto SÍ construye sitio. Es 1 demo a la vez, no producción masiva. Los 4 agent
 
 ## WhatsApp Templates aprobados por Meta
 
-| Template | Uso | Variables body | Button URL |
-|---|---|---|---|
-| `humanio_prospecto_inicial` | msg1 cold (Outreach) | {{1}}=Nombre, {{2}}=Especialidad, {{3}}=Ciudad, {{4}}=Keyword, {{5}}=Negocio | `https://humanio.surge.sh/{{1}}` (donde {{1}}=ref_slug) |
-| `humanio_seguimiento_1` | msg2 día 3 (Closer) | {{1}}=Nombre, {{2}}=Empresa, {{3}}=Objetivo | `https://humanio.surge.sh/{{1}}` |
-| `humanio_seguimiento_2` | msg3 día 7 (Closer) | {{1}}=Nombre, {{2}}=Empresa | `https://humanio.surge.sh/{{1}}` |
+| Template | Uso | Variables body | Botón URL | Quick replies |
+|---|---|---|---|---|
+| `humanio_diagnostico_v1` | msg1 cold (Outreach) | {{1}}=Nombre, {{2}}=Negocio, {{3}}=Hallazgo, {{4}}=Oportunidad, {{5}}=Asesor | `https://www.humanio.digital` (estático) | `Sí, quiero verla` / `Después` |
+| `humanio_seguimiento_1` | msg2 día 3 (Closer) | {{1}}=Nombre, {{2}}=Empresa, {{3}}=Objetivo | `https://humanio.surge.sh/{{1}}` | — |
+| `humanio_seguimiento_2` | msg3 día 7 (Closer) | {{1}}=Nombre, {{2}}=Empresa | `https://humanio.surge.sh/{{1}}` | — |
 
-> **Importante**: como ya no construimos sitio en cold, el botón del template apunta a `humanio.surge.sh/{slug}` que está cubierto por un **redirect shim** (`scripts/surge-redirect/`) que rebota a `humanio.digital/?ref={slug}`. Cuando Meta apruebe templates nuevos con URL directa a `humanio.digital`, el shim se vuelve innecesario.
+> **Migración pendiente**: los templates de seguimiento (`humanio_seguimiento_1`, `humanio_seguimiento_2`) todavía apuntan a `humanio.surge.sh/{slug}`. El redirect shim en `scripts/surge-redirect/` cubre esos clicks rebotando a `humanio.digital/?ref={slug}`. Cuando se aprueben versiones v2 con URL directa a `humanio.digital`, el shim queda como respaldo.
+
+### Quick reply buttons del msg1 — flujo
+
+| Botón | Acción del prospecto | Lo que pasa en el sistema |
+|---|---|---|
+| `Conocer Humanio` (URL) | Abre humanio.digital | Tracking pasivo |
+| `Sí, quiero verla` (quick reply) | Genera mensaje entrante "Sí, quiero verla" | n8n → Closer MODO B → MODO C (demo intake con 4 preguntas) |
+| `Después` (quick reply) | Genera mensaje "Después" | n8n → Closer marca `pendiente_followup`, espera msg2 día 3 |
 
 ## Setup inicial — UNA SOLA VEZ
 
