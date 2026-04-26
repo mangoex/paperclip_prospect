@@ -226,13 +226,22 @@ Si SMTP falla, captura el error real. NO inventes éxito.
 
 ## GATE crítico — registro post-envío
 
+> ⚠️ **CANALES INDEPENDIENTES**: el fallo de WhatsApp NO bloquea Email. El fallo de Email NO bloquea WhatsApp. Los dos se intentan SIEMPRE (si hay datos disponibles).
+>
+> PROHIBIDO inventar reglas como "cascade block" / "si WA falla bloqueo email por integridad". No existen.
+
 | WA | SMTP | Acción |
 |---|---|---|
-| sent (con WA_MSG_ID real) | cualquiera | ✅ INSERT outreach_log + handoff Closer |
-| failed | sent (con messageId real) | ✅ idem |
-| failed | failed | 🛑 NO registres. NO crees Closer. Status: `outreach_blocked, both_channels_failed` |
-| sin telefono | failed | 🛑 idem |
+| sent (WA_MSG_ID real) | sent (messageId real) | ✅ INSERT outreach_log con AMBOS + handoff Closer |
+| sent (WA_MSG_ID real) | failed o sin email | ✅ INSERT con WA_MSG_ID + handoff Closer (error SMTP en `error_detail`) |
+| failed o sin telefono | sent (messageId real) | ✅ INSERT con messageId + handoff Closer (error WA en `error_detail`) |
+| failed o sin telefono | failed o sin email | 🛑 NO registres. NO crees Closer. `outreach_blocked, both_channels_failed` |
 | sin telefono | sin email | 🛑 escalar al CEO — fallo del Qualifier |
+
+### Orden obligatorio
+1. Intenta WhatsApp → captura `WA_STATUS`, `WA_MSG_ID`, `WA_ERROR`
+2. Intenta SMTP **sin importar el resultado de WhatsApp** → captura `SMTP_STATUS`, `SMTP_MSG_ID`, `SMTP_ERROR`
+3. SOLO después evalúa la tabla → decide handoff o block
 
 Regla: `etapa = "contactado"` solo si hay AL MENOS un `provider_message_id` real.
 
