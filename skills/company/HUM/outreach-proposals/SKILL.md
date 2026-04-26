@@ -72,7 +72,36 @@ esac
 ### Paso 1 — Envío del template
 
 > ⚠️ **Endpoint ÚNICO**: `https://graph.facebook.com/v19.0/{phone_id}/messages` — PROHIBIDO Instagram graph, Vercel, etc.
-> ⚠️ **Template ÚNICO**: `humanio_prospecto_inicial` (es_MX) — PROHIBIDO inventar nombres.
+> ⚠️ **Template ÚNICO**: `humanio_diagnostico_v1` (es_MX) — PROHIBIDO inventar nombres.
+
+### Variables del template (5 body params, sin button params)
+
+El template `humanio_diagnostico_v1` tiene botón URL **estático** apuntando a `https://www.humanio.digital` — no requiere parameter en el componente button.
+
+| Var | Significado | Origen del brief | Fallback |
+|---|---|---|---|
+| `{{1}}` | Nombre del prospecto | `nombre_contacto` | `nombre_negocio` |
+| `{{2}}` | Nombre del negocio | `nombre_negocio` | bloquea — no enviar sin nombre |
+| `{{3}}` | Hallazgo principal | `diagnostico_hallazgos[0]` | bloquea — no enviar sin hallazgos |
+| `{{4}}` | Oportunidad principal | `oportunidad_comercial` | bloquea — no enviar sin oportunidad |
+| `{{5}}` | Asesor (constante) | `"Miguel de Humanio"` | (literal, no del brief) |
+
+Resolución antes de armar el payload:
+
+```bash
+NOMBRE_CONTACTO="${BRIEF_NOMBRE_CONTACTO:-$BRIEF_NOMBRE_NEGOCIO}"
+NOMBRE_NEGOCIO="$BRIEF_NOMBRE_NEGOCIO"
+HALLAZGO_PRINCIPAL="${BRIEF_DIAGNOSTICO_HALLAZGOS[0]}"
+OPORTUNIDAD="$BRIEF_OPORTUNIDAD_COMERCIAL"
+ASESOR="Miguel de Humanio"
+
+# Validación dura
+for v in NOMBRE_NEGOCIO HALLAZGO_PRINCIPAL OPORTUNIDAD; do
+  [ -z "${!v}" ] && { echo "BLOCK: brief incompleto, falta $v"; exit 1; }
+done
+```
+
+### Curl literal
 
 ```bash
 curl -s -w "\n---HTTP=%{http_code}---\n" -X POST \
@@ -85,24 +114,18 @@ curl -s -w "\n---HTTP=%{http_code}---\n" -X POST \
   "to": "$TELEFONO",
   "type": "template",
   "template": {
-    "name": "humanio_prospecto_inicial",
+    "name": "humanio_diagnostico_v1",
     "language": { "code": "es_MX" },
     "components": [
       {
         "type": "body",
         "parameters": [
-          {"type": "text", "text": "$NOMBRE_CONTACTO_O_NEGOCIO"},
-          {"type": "text", "text": "$ESPECIALIDAD"},
-          {"type": "text", "text": "$CIUDAD"},
-          {"type": "text", "text": "$KEYWORD_PRINCIPAL"},
-          {"type": "text", "text": "$NOMBRE_NEGOCIO"}
+          {"type": "text", "text": "$NOMBRE_CONTACTO"},
+          {"type": "text", "text": "$NOMBRE_NEGOCIO"},
+          {"type": "text", "text": "$HALLAZGO_PRINCIPAL"},
+          {"type": "text", "text": "$OPORTUNIDAD"},
+          {"type": "text", "text": "$ASESOR"}
         ]
-      },
-      {
-        "type": "button",
-        "sub_type": "url",
-        "index": "0",
-        "parameters": [{"type": "text", "text": "$REF_SLUG"}]
       }
     ]
   }
@@ -110,6 +133,8 @@ curl -s -w "\n---HTTP=%{http_code}---\n" -X POST \
 JSON
 )"
 ```
+
+> Nota: el botón URL es **estático**, por eso no se incluye componente `button` en `components`. Los 2 botones de quick reply (`Sí, quiero verla` / `Después`) tampoco requieren parameters al enviar — solo se configuran en el template y se activan cuando el prospecto los tappea (n8n recibe el inbound y despierta al Closer).
 
 Pega la respuesta JSON cruda en tu output. Extrae `messages[0].id` como `WA_MSG_ID`. Sin esa prueba, el envío NO ocurrió.
 
@@ -286,9 +311,9 @@ SUPABASE_URL, SUPABASE_SERVICE_KEY
 
 ## Reglas de calidad
 
-- WhatsApp msg1 SIEMPRE vía template aprobado `humanio_prospecto_inicial`.
+- WhatsApp msg1 SIEMPRE vía template aprobado `humanio_diagnostico_v1`.
 - Email SIEMPRE vía SMTP directo.
-- URLs en email apuntan SIEMPRE a `humanio.digital/?ref=<slug>`. NUNCA surge.sh.
+- URLs en email apuntan SIEMPRE a `https://www.humanio.digital`. NUNCA surge.sh.
 - Hallazgos del brief, NUNCA inventados.
 - `etapa=contactado` solo con `provider_message_id` real.
 - Subject email ≤ 6 palabras, sin emojis.

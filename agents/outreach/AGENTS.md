@@ -29,9 +29,9 @@ Este agente ha sido detectado mintiendo sobre envíos. SE PROHIBE ABSOLUTAMENTE:
 
 2. **Inventar template names**. El ÚNICO template aprobado para msg1 es:
    ```
-   humanio_prospecto_inicial
+   humanio_diagnostico_v1
    ```
-   con language code `es_MX`. PROHIBIDO `humanio_dental_business_offer`, `whatsapp_humanio_*`. Si tu run usó otro nombre, alucinó.
+   con language code `es_MX`. PROHIBIDO `humanio_dental_business_offer`, `humanio_prospecto_inicial` (versión vieja, deprecada), `whatsapp_humanio_*`. Si tu run usó otro nombre, alucinó.
 
 3. **Reportar "enviado" sin evidencia real**. NUNCA escribas `msg1 enviado ✓` ni `status: sent` ni `WA_MSG_ID: ...` SIN tener la respuesta JSON cruda de Meta con `messages[0].id` extraído. Pega LITERAL ese JSON como prueba.
 
@@ -106,9 +106,12 @@ if [ "$PREFLIGHT" != "200" ]; then
 fi
 ```
 
-**Paso 1 — Envío del template** con los 5 vars del brief:
+**Paso 1 — Envío del template** `humanio_diagnostico_v1` con 5 body params (sin button params, el botón es URL estático):
 
 ```bash
+NOMBRE_CONTACTO="${BRIEF_NOMBRE_CONTACTO:-$BRIEF_NOMBRE_NEGOCIO}"
+ASESOR="Miguel de Humanio"
+
 curl -s -w "\n---HTTP=%{http_code}---\n" -X POST \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
@@ -118,31 +121,32 @@ curl -s -w "\n---HTTP=%{http_code}---\n" -X POST \
     \"to\": \"$TELEFONO\",
     \"type\": \"template\",
     \"template\": {
-      \"name\": \"humanio_prospecto_inicial\",
+      \"name\": \"humanio_diagnostico_v1\",
       \"language\": { \"code\": \"es_MX\" },
       \"components\": [
         {
           \"type\": \"body\",
           \"parameters\": [
-            {\"type\": \"text\", \"text\": \"$NOMBRE_CONTACTO_O_NEGOCIO\"},
-            {\"type\": \"text\", \"text\": \"$ESPECIALIDAD\"},
-            {\"type\": \"text\", \"text\": \"$CIUDAD\"},
-            {\"type\": \"text\", \"text\": \"$KEYWORD_PRINCIPAL\"},
-            {\"type\": \"text\", \"text\": \"$NOMBRE_NEGOCIO\"}
+            {\"type\": \"text\", \"text\": \"$NOMBRE_CONTACTO\"},
+            {\"type\": \"text\", \"text\": \"$NOMBRE_NEGOCIO\"},
+            {\"type\": \"text\", \"text\": \"$HALLAZGO_PRINCIPAL\"},
+            {\"type\": \"text\", \"text\": \"$OPORTUNIDAD\"},
+            {\"type\": \"text\", \"text\": \"$ASESOR\"}
           ]
-        },
-        {
-          \"type\": \"button\",
-          \"sub_type\": \"url\",
-          \"index\": \"0\",
-          \"parameters\": [{\"type\": \"text\", \"text\": \"$REF_SLUG\"}]
         }
       ]
     }
   }"
 ```
 
-> Nota sobre el botón URL: el template Meta actual sigue apuntando a `https://humanio.surge.sh/{{1}}`. Mientras Meta aprueba el template nuevo con `https://humanio.digital/?ref={{1}}`, hay un redirect en `humanio.surge.sh/` → `humanio.digital/?ref=<slug>` para que cualquier click termine en humanio.digital.
+> Mapeo brief → params:
+> - `{{1}}` = `nombre_contacto` (fallback `nombre_negocio`)
+> - `{{2}}` = `nombre_negocio`
+> - `{{3}}` = `diagnostico_hallazgos[0]` (el principal)
+> - `{{4}}` = `oportunidad_comercial` (frase corta vendedora del Qualifier)
+> - `{{5}}` = `"Miguel de Humanio"` (constante, no del brief)
+>
+> El botón URL del template apunta a `https://www.humanio.digital` (estático). Los 2 botones de quick reply (`Sí, quiero verla` / `Después`) tampoco requieren parameters al enviar — el prospecto los tappea y n8n recibe el inbound.
 
 **Paso 2 — Pegar evidencia LITERAL** en tu output:
 
