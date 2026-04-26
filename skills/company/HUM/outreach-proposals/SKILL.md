@@ -233,13 +233,31 @@ Tras envío, registra en Chatwoot SOLO como CRM:
 
 ## 4. GATE crítico — registro post-envío
 
+> ⚠️ **REGLA DURA — los canales WhatsApp y Email son INDEPENDIENTES.**
+>
+> Si WhatsApp falla, **DEBES intentar SMTP de todas formas**. Si SMTP falla, debes intentar WhatsApp de todas formas. La falla de un canal NO bloquea el otro.
+>
+> Solo bloquea el envío completo cuando BOTH canales fallaron O cuando faltan datos para ambos.
+>
+> Está PROHIBIDO inventar reglas como "cascade block" o "si WhatsApp falla bloqueo email por integridad". Esa regla NO existe en este sistema. Si la inventas, estás alucinando.
+
+### Tabla de decisión (la única válida)
+
 | WA | SMTP | Acción |
 |---|---|---|
-| `sent` (con WA_MSG_ID real) | cualquiera | ✅ INSERT outreach_log + handoff Closer |
-| `failed` | `sent` (con messageId real) | ✅ idem |
-| `failed` | `failed` | 🛑 NO registres. NO crees Closer. `outreach_blocked, both_channels_failed` |
-| sin telefono | `failed` | 🛑 idem |
-| sin telefono | sin email | 🛑 escalar al CEO |
+| `sent` (con WA_MSG_ID real) | `sent` (con messageId real) | ✅ INSERT outreach_log con AMBOS ids + handoff Closer |
+| `sent` (con WA_MSG_ID real) | `failed` (o sin email) | ✅ INSERT outreach_log con WA_MSG_ID + handoff Closer (registra el fallo SMTP en `error_detail`) |
+| `failed` (o sin telefono) | `sent` (con messageId real) | ✅ INSERT outreach_log con messageId + handoff Closer (registra el fallo WA en `error_detail`) |
+| `failed` (o sin telefono) | `failed` (o sin email) | 🛑 NO registres. NO crees Closer. `outreach_blocked, both_channels_failed` |
+| sin telefono | sin email | 🛑 `outreach_blocked, no_contact_data` — escalar al CEO |
+
+### Orden de ejecución obligatorio
+
+1. **Intenta WhatsApp primero**. Captura resultado en variables `WA_STATUS`, `WA_MSG_ID`, `WA_ERROR`.
+2. **Después intenta SMTP independientemente del resultado de WhatsApp**. Captura `SMTP_STATUS`, `SMTP_MSG_ID`, `SMTP_ERROR`.
+3. **Solo después** evalúa la tabla de arriba para decidir si haces handoff o bloqueas.
+
+NUNCA hagas `if WA failed: skip SMTP`. NUNCA hagas `if SMTP failed: skip WA`. Los dos se intentan SIEMPRE (si hay datos disponibles para cada uno).
 
 ### INSERT en outreach_log
 
