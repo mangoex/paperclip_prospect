@@ -159,14 +159,15 @@ activation_rank: "{posición}"
 observaciones: "{notas}"
 ```
 
-> Los campos que Outreach consume para el template Meta `humanio_diagnostico_v1`:
+> Los 4 campos que Outreach consume para el template Meta `humanio_diagnostico_v1`:
 > - `nombre_contacto` (fallback: `nombre_negocio`) → `{{1}}`
 > - `nombre_negocio` → `{{2}}`
 > - `diagnostico_hallazgos[0]` → `{{3}}` (el más fuerte)
 > - `oportunidad_comercial` → `{{4}}` (frase corta vendedora ≤ 120 chars)
-> - `"Miguel de Humanio"` → `{{5}}` (constante)
 >
-> El `ref_slug` ya NO se usa en el template (botón URL es estático a `https://www.humanio.digital`). Lo mantenemos solo para tracking interno y el `?ref=` del CTA del email.
+> "Hannia" está hardcoded en el body del template (no es var). Los 3 botones (URL "Conoce Humanio" + 2 quick replies) se renderizan automáticamente, no requieren parámetros al enviar.
+>
+> El `ref_slug` ya NO se usa en el template (botón URL es estático). Lo mantenemos solo para tracking interno y el `?ref=` del CTA del email.
 
 ## Sobre `oportunidad_comercial` — formato para WhatsApp
 
