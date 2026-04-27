@@ -86,7 +86,7 @@ agents:
       type: "claude_local"
     runtime:
       heartbeat:
-        enabled: false
+        intervalSec: 300
       maxConcurrentRuns: 1
 
   webbuilder:
@@ -99,7 +99,7 @@ agents:
       type: "claude_local"
     runtime:
       heartbeat:
-        enabled: false
+        intervalSec: 300
       maxConcurrentRuns: 1
     inputs:
       env:
@@ -124,7 +124,7 @@ agents:
       type: "claude_local"
     runtime:
       heartbeat:
-        enabled: false
+        intervalSec: 300
       maxConcurrentRuns: 1
 
   webpublisher:
@@ -137,7 +137,7 @@ agents:
       type: "claude_local"
     runtime:
       heartbeat:
-        enabled: false
+        intervalSec: 300
       maxConcurrentRuns: 1
     inputs:
       env:
