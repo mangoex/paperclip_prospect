@@ -7,6 +7,7 @@ agents:
     adapter:
       config:
         model: "claude-sonnet-4-5-20250929"
+        dangerouslySkipPermissions: true
       type: "claude_local"
     runtime:
       heartbeat:
@@ -21,6 +22,7 @@ agents:
     adapter:
       config:
         model: "claude-sonnet-4-5-20250929"
+        dangerouslySkipPermissions: true
       type: "claude_local"
     runtime:
       heartbeat:
@@ -50,6 +52,7 @@ agents:
     adapter:
       config:
         model: "claude-sonnet-4-5-20250929"
+        dangerouslySkipPermissions: true
       type: "claude_local"
     runtime:
       heartbeat:
@@ -79,6 +82,7 @@ agents:
     adapter:
       config:
         model: "claude-sonnet-4-5-20250929"
+        dangerouslySkipPermissions: true
       type: "claude_local"
     runtime:
       heartbeat:
@@ -91,6 +95,7 @@ agents:
     adapter:
       config:
         model: "claude-sonnet-4-5-20250929"
+        dangerouslySkipPermissions: true
       type: "claude_local"
     runtime:
       heartbeat:
@@ -115,6 +120,7 @@ agents:
     adapter:
       config:
         model: "claude-sonnet-4-5-20250929"
+        dangerouslySkipPermissions: true
       type: "claude_local"
     runtime:
       heartbeat:
@@ -127,6 +133,7 @@ agents:
     adapter:
       config:
         model: "claude-sonnet-4-5-20250929"
+        dangerouslySkipPermissions: true
       type: "claude_local"
     runtime:
       heartbeat:
@@ -156,6 +163,7 @@ agents:
     adapter:
       config:
         model: "claude-sonnet-4-5-20250929"
+        dangerouslySkipPermissions: true
       type: "claude_local"
     runtime:
       heartbeat:
@@ -275,6 +283,7 @@ agents:
     adapter:
       config:
         model: "claude-sonnet-4-5-20250929"
+        dangerouslySkipPermissions: true
       type: "claude_local"
     runtime:
       heartbeat:
@@ -395,6 +404,7 @@ agents:
     adapter:
       config:
         model: "claude-sonnet-4-5-20250929"
+        dangerouslySkipPermissions: true
       type: "claude_local"
     runtime:
       heartbeat:
