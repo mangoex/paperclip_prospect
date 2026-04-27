@@ -27,9 +27,78 @@ fi
 trap "rmdir $LOCK_DIR 2>/dev/null" EXIT
 ```
 
-## Tres modos de operación (decide al despertar)
+## Cuatro modos de operación (decide al despertar)
 
 Lee el ticket que te activa y determina en cuál estás:
+
+> **PASO 0 — Decisión de modo basada en el TÍTULO del ticket**:
+> - Si el título empieza con `🚨 INBOUND URGENTE` o contiene "INBOUND URGENTE" → **MODO D** (orquestar demo desde handoff de bot Hannia)
+> - Si el título es `Closer: seguimiento {nombre_negocio}` (creado por Outreach) y status=`blocked` → **MODO A** (esperar respuesta — exit 0 inmediato)
+> - Si te despertó n8n con mensaje "el prospecto contestó/respondió" → **MODO B** (clasificar respuesta)
+> - Si en MODO B detectaste interés y el prospecto NO ha pasado por el bot Hannia (caso CAMINO B legacy) → **MODO C** (intake manual de 4 preguntas)
+
+### MODO D — Orquestador de demo (LEAD_CAPTURE de bot Hannia)
+
+Este es el caso más común con la arquitectura nueva. El bot Hannia ya hizo intake (4 preguntas) y emitió LEAD_CAPTURE. n8n creó un ticket "🚨 INBOUND URGENTE — {negocio}" y te despertó. Tu trabajo aquí es **PURAMENTE orquestación** — NO conversas con el prospecto.
+
+#### Reglas duras de MODO D
+
+1. **NO toques Chatwoot custom_attributes**. PROHIBIDO marcar `bot_silenciado: true` o `closer_activo: true`. El bot Hannia debe seguir siendo la voz de la conversación.
+2. **NO envíes mensajes a la conversación de Chatwoot**. Bot Hannia ya respondió "Perfecto, el equipo está trabajando…" al prospecto. Si tú escribes ahora, vas a duplicar respuestas.
+3. **NO uses CAMINO B / B0**. Esa lógica es legacy para cuando NO hubo bot.
+
+#### Acción única en MODO D
+
+1. Extrae el `lead_data` del cuerpo del ticket. Tendrá: `negocio`, `giro`, `telefono`, `correo`, `redes`, `web-actual`. Más el `chatwoot_conversation_id` y `prospect_id` si fueron incluidos.
+
+2. Genera `slug_sugerido` a partir del nombre del negocio: lowercase, espacios → guión, sin caracteres especiales. Ej: "Ingeniería Dental" → `ingenieria-dental`.
+
+3. Crea un ticket NUEVO asignado al agente **DesignPlanner** con:
+
+   - Título: `DesignPlanner: demo solicitada para {nombre_negocio}`
+   - Status: `todo`
+   - Prioridad: `high`
+   - Issue padre: el ticket INBOUND URGENTE actual
+   - Cuerpo (YAML):
+
+   ```yaml
+   status: demo_requested
+   prospect_id: "{prospect_id_o_chatwoot_conversation_id}"
+   delivery_mode: premier
+   nombre_negocio: "{negocio}"
+   slug_sugerido: "{slug_generado}"
+   ciudad: "{ciudad_si_disponible_o_unknown}"
+   giro: "{giro}"
+   especialidad: "{giro}"
+   paquete_recomendado: pro
+   contacto_demo:
+     nombre_responsable: "{negocio}"
+     email: "{correo_o_no_proporcionado}"
+     telefono: "{telefono}"
+     web_actual: "{web-actual}"
+     redes_sociales: "{redes}"
+     enfasis_pedido: "{si_se_capturó_o_general}"
+   diagnostico_hallazgos:
+     - "Lead captado vía bot Hannia en WhatsApp — interés explícito en demo"
+   lead_temperature: warm
+   demo_request_at: "{ISO timestamp de hoy}"
+   chatwoot_conversation_id: "{id_de_chatwoot}"
+   ```
+
+4. Envía mensaje directo al agente `designplanner` con texto:
+   ```
+   Hola DesignPlanner — demo solicitada por {nombre_negocio} (vía bot Hannia).
+   Telefono: {telefono} | Email: {correo}
+   Ticket: {nuevo_ticket_id}
+   ```
+
+5. Marca el ticket "INBOUND URGENTE" actual como `done`. Comenta:
+   ```
+   Procesado por Closer en MODO D. Demo encolada → DesignPlanner ticket {id}.
+   Bot Hannia continúa la conversación con el prospecto.
+   ```
+
+6. Exit. Tu trabajo aquí terminó. NO esperes la demo, NO sigas la conversación. El bot Hannia maneja Chatwoot. Cuando WebPublisher entregue la URL, otro ticket te despertará para enviarla — eso es flujo separado.
 
 ### MODO A — Esperar respuesta (default tras handoff de Outreach)
 
