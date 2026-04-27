@@ -74,9 +74,16 @@ esac
 > ⚠️ **Endpoint ÚNICO**: `https://graph.facebook.com/v19.0/{phone_id}/messages` — PROHIBIDO Instagram graph, Vercel, etc.
 > ⚠️ **Template ÚNICO**: `humanio_diagnostico_v1` (es_MX) — PROHIBIDO inventar nombres.
 
-### Variables del template (5 body params, sin button params)
+### Variables del template (4 body params; los 3 botones NO requieren parameters al enviar)
 
-El template `humanio_diagnostico_v1` tiene botón URL **estático** apuntando a `https://www.humanio.digital` — no requiere parameter en el componente button.
+El template `humanio_diagnostico_v1` aprobado en Meta tiene **4 variables** en el body. El asesor "Hannia" está hardcoded en el body.
+
+Botones del template (renderizados automáticamente, sin params al enviar):
+- 1 **URL estático**: "Conoce Humanio" → `https://www.humanio.digital/`
+- 1 **QUICK_REPLY**: "Sí, quiero verla" → cuando el prospecto lo tappea, genera mensaje entrante en Chatwoot que dispara el bot Hannia (n8n) y luego al Closer
+- 1 **QUICK_REPLY**: "Después" → genera mensaje entrante "Después" — Closer marca pendiente_followup
+
+Por eso al enviar SOLO se incluye el componente `body` con 4 params en el `components` del payload. Los botones se renderizan solos.
 
 | Var | Significado | Origen del brief | Fallback |
 |---|---|---|---|
@@ -84,7 +91,15 @@ El template `humanio_diagnostico_v1` tiene botón URL **estático** apuntando a 
 | `{{2}}` | Nombre del negocio | `nombre_negocio` | bloquea — no enviar sin nombre |
 | `{{3}}` | Hallazgo principal | `diagnostico_hallazgos[0]` | bloquea — no enviar sin hallazgos |
 | `{{4}}` | Oportunidad principal | `oportunidad_comercial` | bloquea — no enviar sin oportunidad |
-| `{{5}}` | Asesor (constante) | `"Miguel de Humanio"` | (literal, no del brief) |
+
+> Body literal del template (referencia, no se modifica desde el código):
+> ```
+> Hola {{1}}, soy Hannia de Humanio.
+> Revisamos la presencia digital de {{2}} y detectamos este punto de mejora: {{3}}.
+> Vemos una oportunidad clara: {{4}}.
+> Podemos prepararte una propuesta visual inicial con página web, botón a WhatsApp y chatbot, sin costo ni compromiso.
+> ¿Te gustaría verla?
+> ```
 
 Resolución antes de armar el payload:
 
@@ -93,7 +108,6 @@ NOMBRE_CONTACTO="${BRIEF_NOMBRE_CONTACTO:-$BRIEF_NOMBRE_NEGOCIO}"
 NOMBRE_NEGOCIO="$BRIEF_NOMBRE_NEGOCIO"
 HALLAZGO_PRINCIPAL="${BRIEF_DIAGNOSTICO_HALLAZGOS[0]}"
 OPORTUNIDAD="$BRIEF_OPORTUNIDAD_COMERCIAL"
-ASESOR="Miguel de Humanio"
 
 # Validación dura
 for v in NOMBRE_NEGOCIO HALLAZGO_PRINCIPAL OPORTUNIDAD; do
@@ -123,8 +137,7 @@ curl -s -w "\n---HTTP=%{http_code}---\n" -X POST \
           {"type": "text", "text": "$NOMBRE_CONTACTO"},
           {"type": "text", "text": "$NOMBRE_NEGOCIO"},
           {"type": "text", "text": "$HALLAZGO_PRINCIPAL"},
-          {"type": "text", "text": "$OPORTUNIDAD"},
-          {"type": "text", "text": "$ASESOR"}
+          {"type": "text", "text": "$OPORTUNIDAD"}
         ]
       }
     ]

@@ -106,11 +106,10 @@ if [ "$PREFLIGHT" != "200" ]; then
 fi
 ```
 
-**Paso 1 — Envío del template** `humanio_diagnostico_v1` con 5 body params (sin button params, el botón es URL estático):
+**Paso 1 — Envío del template** `humanio_diagnostico_v1` con **4 body params** (los botones se renderizan solos, no requieren parameters):
 
 ```bash
 NOMBRE_CONTACTO="${BRIEF_NOMBRE_CONTACTO:-$BRIEF_NOMBRE_NEGOCIO}"
-ASESOR="Miguel de Humanio"
 
 curl -s -w "\n---HTTP=%{http_code}---\n" -X POST \
   -H "Authorization: Bearer $TOKEN" \
@@ -130,8 +129,7 @@ curl -s -w "\n---HTTP=%{http_code}---\n" -X POST \
             {\"type\": \"text\", \"text\": \"$NOMBRE_CONTACTO\"},
             {\"type\": \"text\", \"text\": \"$NOMBRE_NEGOCIO\"},
             {\"type\": \"text\", \"text\": \"$HALLAZGO_PRINCIPAL\"},
-            {\"type\": \"text\", \"text\": \"$OPORTUNIDAD\"},
-            {\"type\": \"text\", \"text\": \"$ASESOR\"}
+            {\"type\": \"text\", \"text\": \"$OPORTUNIDAD\"}
           ]
         }
       ]
@@ -139,14 +137,16 @@ curl -s -w "\n---HTTP=%{http_code}---\n" -X POST \
   }"
 ```
 
-> Mapeo brief → params:
+> Mapeo brief → params (4 vars; "Hannia" está hardcoded en el body del template):
 > - `{{1}}` = `nombre_contacto` (fallback `nombre_negocio`)
 > - `{{2}}` = `nombre_negocio`
 > - `{{3}}` = `diagnostico_hallazgos[0]` (el principal)
 > - `{{4}}` = `oportunidad_comercial` (frase corta vendedora del Qualifier)
-> - `{{5}}` = `"Miguel de Humanio"` (constante, no del brief)
 >
-> El botón URL del template apunta a `https://www.humanio.digital` (estático). Los 2 botones de quick reply (`Sí, quiero verla` / `Después`) tampoco requieren parameters al enviar — el prospecto los tappea y n8n recibe el inbound.
+> El template tiene 3 botones que se renderizan automáticamente (no requieren params al enviar):
+> - URL "Conoce Humanio" → `https://www.humanio.digital/`
+> - QUICK_REPLY "Sí, quiero verla" → cuando el prospecto lo tappea, n8n recibe inbound y dispara cadena (bot Hannia → Closer demo intake)
+> - QUICK_REPLY "Después" → Closer marca pendiente_followup
 
 **Paso 2 — Pegar evidencia LITERAL** en tu output:
 
