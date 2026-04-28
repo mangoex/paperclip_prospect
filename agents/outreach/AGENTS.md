@@ -87,6 +87,20 @@ PROSPECT_BRIEF con:
 
 Si falta cualquier campo crítico (telefono, email, nombre_negocio, ref_slug, ciudad, keyword_principal), bloquea con `status: outreach_blocked, blocking_reason: incomplete_brief`.
 
+### Validación adicional — contact_override
+
+Si el PROSPECT_BRIEF (o el ticket padre) incluye `contact_override.is_test_run: true`:
+
+1. Verifica que `telefono` del brief coincida con `contact_override.forced_telefono`
+2. Verifica que `email` del brief coincida con `contact_override.forced_email`
+3. Si NO coinciden → el Qualifier ignoró el override. BLOQUEA con:
+   ```
+   status: outreach_blocked
+   blocking_reason: qualifier_ignored_override
+   detail: "Brief.telefono={X} vs forced={Y}. NO ENVIAR — riesgo de contactar prospecto real."
+   ```
+4. Si coinciden → procede pero agrega `[TEST RUN]` al subject del email y comentario `test_run: true` en outreach_log.
+
 ## Procedimiento literal de envío WhatsApp
 
 **Paso 0 — Preflight de credenciales** (siempre):

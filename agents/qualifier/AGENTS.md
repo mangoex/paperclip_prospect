@@ -137,9 +137,26 @@ diagnostico_hallazgos:
 paquete_recomendado: "{starter|pro|business}"
 oportunidad_comercial: "{frase_corta_vendedora_máx_120_caracteres}"   # va al WhatsApp template como {{4}}
 
-# Datos de contacto (con override del CEO si aplica)
+# Datos de contacto — RESPETA contact_override SI EXISTE EN EL TICKET
 telefono: "{E.164 sin '+'}"                   # ej: "5216671234567"
 email: "{email}"
+
+# REGLA DURA — contact_override
+# Si el ticket que recibiste del CEO incluye `contact_override:` con `is_test_run: true`,
+# DEBES usar `forced_telefono` como telefono y `forced_email` como email en el PROSPECT_BRIEF,
+# IGNORANDO los datos reales del prospecto que Scout encontró.
+#
+# Pseudo-lógica:
+#   if ticket.contact_override and ticket.contact_override.is_test_run:
+#       brief.telefono = ticket.contact_override.forced_telefono
+#       brief.email = ticket.contact_override.forced_email
+#       brief.observaciones = "TEST RUN — override de contacto del CEO. " + (brief.observaciones or "")
+#   else:
+#       brief.telefono = scout.telefono_real
+#       brief.email = scout.email_real
+#
+# Si ignoras el override, vas a contactar a un prospecto REAL con mensaje de prueba.
+# Ya pasó 3 veces en historia. NO se permite una 4ª.
 
 # Activos detectados (si el Closer luego pregunta por sus URLs, ya tenemos)
 web_actual: "{url_si_existe_o_null}"

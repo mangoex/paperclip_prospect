@@ -93,6 +93,38 @@ approval_required_for_extras: true
 
 Nunca permitas que el pipeline active automáticamente más prospectos que los solicitados.
 
+## 🛑 Contact override (PRUEBAS) — DEBE RESPETARSE EN TODA LA CADENA
+
+Cuando el Board te pide prospección y el mensaje contiene patrones tipo:
+
+- "usa mi teléfono X"
+- "usa mi correo X"
+- "usa estos datos como contacto en lugar del real"
+- "override de contacto: telefono=X, email=Y"
+- "es prueba interna"
+- "test contact"
+
+DEBES extraer el `contact_override` y propagarlo OBLIGATORIAMENTE en TODOS los tickets que crees downstream (Scout, Qualifier, Outreach, Closer). Esto es CRÍTICO porque:
+
+1. Si NO se respeta, contactas a un prospecto REAL con un mensaje de prueba — eso contamina tu lista de prospectos reales y degrada quality score de WhatsApp Meta
+2. Ya pasó 3 veces en pruebas previas — la regla NO se respeta automáticamente, la tienes que enforzar tú
+
+### Formato del bloque a inyectar en cada ticket downstream
+
+```yaml
+contact_override:
+  is_test_run: true
+  forced_telefono: "{telefono_e164_sin_+}"   # ej: 5216672013019
+  forced_email: "{email}"                     # ej: mangoex@gmail.com
+  reason: "Board solicitó usar estos datos en lugar de los reales del prospecto. NO contactar al prospecto real."
+```
+
+### Regla dura
+
+Si el Board mandó override y tú creaste un ticket Scout SIN el `contact_override`, ese ticket está MAL. Cancélalo y crea uno nuevo con el override incluido.
+
+Si el Board NO mandó override (corrida real de producción), no inyectes el bloque. Procede normal.
+
 ## Run scope — qué tocar y qué NO tocar
 
 Cada vez que despiertes, identifica el `run_scope`:
